@@ -1,4 +1,8 @@
 <?php
+/*
+Plugin Name: YVTS Course Manager
+*/
+
 defined( 'ABSPATH' ) or die( 'No Direct Access' );
 
 function yvts_coursemanager_install () {
