@@ -37,10 +37,20 @@ function yvts_coursemanager_install () {
 
 function yvts_coursemanager_admin_menu() {
     /* Builds admin functions */
-	add_options_page( 'Course Manager Options', 'YVTS Course Manager', 'manage_options', 'my-unique-identifier', 'yvts_coursemanager_admin_courses' );
+    add_options_page( 'Courses', 'YVTS Course Manager', 'manage_options', 'yvts_coursemanager_admin_courses', 'yvts_coursemanager_admin_courses' );
+    add_options_page( 'Applications', 'YVTS Course Manager', 'manage_options', 'yvts_coursemanager_admin_submissions', 'yvts_coursemanager_admin_submissions' );
 }
 
 function yvts_coursemanager_admin_courses() {
+	if ( !current_user_can( 'manage_options' ) )  {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+	echo '<div class="wrap">';
+	echo '<p>TODO: show existing list of courses, and allow the user to add new ones.</p>';
+	echo '</div>';
+}
+
+function yvts_coursemanager_admin_submissions() {
 	if ( !current_user_can( 'manage_options' ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
