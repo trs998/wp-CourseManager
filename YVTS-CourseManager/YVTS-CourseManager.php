@@ -32,7 +32,7 @@ function yvts_coursemanager_install () {
     
     dbDelta( $sql );
 
-    //FIXME - needs more tables:  Level, CourseRunning and Exams 
+    //FIXME - needs more tables:  CourseRunning and Exams 
 }
 
 function yvts_coursemanager_admin_menu() {
