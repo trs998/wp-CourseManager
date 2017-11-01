@@ -71,5 +71,24 @@ class yvts_level {
         }
     }
 
+    public static function deleteLevel($levelID) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . "yvts_levels"; 
+
+        $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `levelid` = %d", $levelID );
+        $result = $wpdb->get_results($sql);
+        if (count($result) == 1) {
+            $result = $wpdb->delete($table_name,array("levelid" => $levelID),array('%d'));
+            if ($result === 1) {
+                return true;
+            } else {
+                return "Error deletng level: " . $wpdb->last_error;
+            }
+        } else {
+            return "Level with ID $levelID does not exist";
+        }
+
+    }
+
 }
 ?>

@@ -72,5 +72,11 @@ class yvts_course {
             return "Course Name \"$newcoursename\" with ID $courseID does not exist";
         }
     }
+
+    //delete Course function TODO
+    //check course exists
+    //fetch levels
+    //for each level, delete it
+    //delete course
 }
 ?>
