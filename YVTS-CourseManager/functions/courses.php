@@ -1,4 +1,5 @@
 <?php
+defined( 'ABSPATH' ) or die( 'No Direct Access' );
 /* Functions for courses */
 
 //create course
@@ -14,12 +15,16 @@ class yvts_course {
         
         $table_name = $wpdb->prefix . "yvts_courses"; 
     
-        $sql = "SELECT * FROM $table_name ORDER BY name ASC";
+        $sql = $wpdb->prepare( "SELECT * FROM `$table_name` ORDER BY `name` ASC");
         $result = $wpdb->get_results($sql);
+        for ($i = 0; $i < count($result); $i++) {
+            //collect levels
+            $result[$i]->levels = yvts_level::getLevels($result[$i]->courseid);
+        }
         return $result;
     }
 
-    public static function createCourse($newcoursename) {
+    public static function createCourse($newcoursename,$newcoursedesc) {
         global $wpdb;
 
         //check does not exist
@@ -32,7 +37,7 @@ class yvts_course {
         $result = $wpdb->get_results($sql);
         if (count($result) == 0) {
             //proceed to insert
-            $result = $wpdb->insert($table_name,array("name" => $newcoursename, "description" => ""),array('%s','%s'));
+            $result = $wpdb->insert($table_name,array("name" => $newcoursename, "description" => $newcoursedesc),array('%s','%s'));
             if ($result === 1) {
                 return true;
             } else {
@@ -43,19 +48,25 @@ class yvts_course {
         }
     }
 
-    public static function updateCourse($courseID, $newcoursename) {
+    public static function updateCourse($courseID, $newcoursename, $newcoursedesc) {
         global $wpdb;
         $table_name = $wpdb->prefix . "yvts_courses"; 
 
         $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `courseid` = %d", $courseID );
         $result = $wpdb->get_results($sql);
         if (count($result) == 1) {
-            //proceed to update
-            $result = $wpdb->update($table_name,array("name" => $newcoursename, "description" => ""),array("courseid" => $courseID),array('%s','%s'),array('%d'));
-            if ($result === 1) {
-                return true;
+            $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `name` = \"%s\"", $newcoursename );
+            $result = $wpdb->get_results($sql);
+            if (count($result) == 0) {
+                //proceed to update
+                $result = $wpdb->update($table_name,array("name" => $newcoursename, "description" => $newcoursedesc),array("courseid" => $courseID),array('%s','%s'),array('%d'));
+                if ($result === 1) {
+                    return true;
+                } else {
+                    return "Error updating course: " . $wpdb->last_error;
+                }
             } else {
-                return "Error updating course: " . $wpdb->last_error;
+                return "Course Name \"$newcoursename\" would result in a duplicate name.";
             }
         } else {
             return "Course Name \"$newcoursename\" with ID $courseID does not exist";
