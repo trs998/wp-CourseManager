@@ -12,6 +12,10 @@ class yvts_level {
 
         $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `courseid` = %d ORDER BY `name` ASC", $courseID );
         $result = $wpdb->get_results($sql);
+        for ($i = 0; $i < count($result); $i++) {
+            //collect levels
+            $result[$i]->exams = yvts_exam::getExams($result[$i]->levelid);
+        }
         return $result;
     }
     
@@ -73,11 +77,13 @@ class yvts_level {
 
     public static function deleteLevel($levelID) {
         global $wpdb;
+        $table_name_sub = $wpdb->prefix . "yvts_examss"; 
         $table_name = $wpdb->prefix . "yvts_levels"; 
 
         $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `levelid` = %d", $levelID );
         $result = $wpdb->get_results($sql);
         if (count($result) == 1) {
+            $result = $wpdb->delete($table_name_exams,array("levelid" => $levelID),array('%d'));
             $result = $wpdb->delete($table_name,array("levelid" => $levelID),array('%d'));
             if ($result === 1) {
                 return true;

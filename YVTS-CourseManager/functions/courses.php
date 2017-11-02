@@ -15,8 +15,7 @@ class yvts_course {
         
         $table_name = $wpdb->prefix . "yvts_courses"; 
     
-        $sql = $wpdb->prepare( "SELECT * FROM `$table_name` ORDER BY `name` ASC");
-        $result = $wpdb->get_results($sql);
+        $result = $wpdb->get_results( "SELECT * FROM `$table_name` ORDER BY `name` ASC");
         for ($i = 0; $i < count($result); $i++) {
             //collect levels
             $result[$i]->levels = yvts_level::getLevels($result[$i]->courseid);
