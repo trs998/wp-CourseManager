@@ -70,7 +70,7 @@ function yvts_coursemanager_upgrade() {
     $DBVersion = get_option("yvts_coursemanager_db_version");
     if ($DBVersion == "1.0") { $DBVersion = yvts_coursemanager_upgrade_db_1_to_2(); }
     if ($DBVersion != get_option("yvts_coursemanager_db_version")) {
-        add_option( "yvts_coursemanager_db_version", "$DBVersion" );
+        update_option( "yvts_coursemanager_db_version", "$DBVersion" );
     }
 }
 
