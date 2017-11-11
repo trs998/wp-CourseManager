@@ -76,8 +76,18 @@ function yvts_coursemanager_upgrade() {
 
 function yvts_coursemanager_admin_menu() {
     /* Builds admin functions */
-    add_options_page( 'YVTS Course Manager - Courses', 'Course Manager - Courses', 'manage_options', 'yvts_coursemanager_admin_courses', 'yvts_coursemanager_admin_courses' );
-    add_options_page( 'YVTS Course Manager - Applications', 'Course Manager - Submissions', 'manage_options', 'yvts_coursemanager_admin_submissions', 'yvts_coursemanager_admin_submissions' );
+    add_menu_page('YVTS Course Manager','YVTS Course Manager', 'manage_options', 'yvts_coursemanager' ,'yvts_coursemanager_admin', '', 7);
+    add_submenu_page( 'yvts_coursemanager', 'YVTS Course Manager - Courses', 'Courses', 'manage_options', 'yvts_coursemanager_admin_courses', 'yvts_coursemanager_admin_courses' );
+    add_submenu_page( 'yvts_coursemanager', 'YVTS Course Manager - Schedules', 'Schedules', 'manage_options', 'yvts_coursemanager_admin_schedules', 'yvts_coursemanager_admin_schedules' );
+    add_submenu_page( 'yvts_coursemanager', 'YVTS Course Manager - Applications', 'Applications', 'manage_options', 'yvts_coursemanager_admin_submissions', 'yvts_coursemanager_admin_submissions' );
+}
+
+function yvts_coursemanager_admin() {
+	if ( !current_user_can( 'manage_options' ) )  {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+    }
+    echo "<p>List summary information</p>";
+    echo "<p>Show counts of data - courses, levels and exams.</p>";
 }
 
 function yvts_coursemanager_admin_courses() {
@@ -189,6 +199,33 @@ function yvts_coursemanager_admin_courses() {
             }
         }
     }
+    
+    $editexammessage = "";
+    if (isset($_POST["Edit_Exam"])) {
+        $editedexamID = trim($_POST["editexamID"]);
+        $editedexam = trim($_POST["editexam".$_POST["editexamID"]]);
+        if (strlen($editedexam) < 1) {
+            $editexammessage = "<span style=\"color: red\">Edited Exam Name needs to be entered</span>";
+        } else {
+            $editexamresult = yvts_exam::updateExam($editedexamID, $editedexam);
+            if ($editexamresult === true) {
+                $editexammessage = "<span style=\"color: green\">Edited Exam \"$editedexam\" saved successfully</span>";
+            } else {
+                $editexammessage = "<span style=\"color: red\">$editexammessage</span>";
+            }
+        }
+    }
+    
+    $deleteexammessage = "";
+    if (isset($_POST["deleteExam"])) {
+        $deleteExamID = $_POST["deleteExam"];
+        $deleteexamresult = yvts_exam::deleteExam($deleteExamID);
+        if ($deleteexamresult === true) {
+            $deleteexammessage = "<span style=\"color: green\">Deleted Exam successfully</span>";
+        } else {
+            $deleteexammessage = "<span style=\"color: red\">$deleteexamresult</span>";
+        }
+    }
 
     echo '<div class="wrap">';
     echo "<h2>List of courses (methods) on system, with levels for each course.</h2>";
@@ -197,12 +234,13 @@ function yvts_coursemanager_admin_courses() {
     echo ".yvts_course_description { font-size: 70%; font-weight: normal; }\n";
     echo ".yvts_level { margin-left: 60px; }\n";
     echo ".yvts_exam { margin-left: 100px; }\n";
+    echo ".yvts_delete_button { padding: 1px; }\n";
     echo ".yvts_course_edit { font-weight: normal; }";
     echo ".yvts_footer { font-size: 80%; margin-top: 100px; }";
     echo "</style>";
     $courseList = yvts_course::getCourses();
     echo "<p><strong>Course List: " . count($courseList) . " courses</strong></p>";
-    echo "<p>$editcoursemessage $newlevelmessage $editlevelmessage</p>";
+    echo "<p>$editcoursemessage $newlevelmessage $editlevelmessage $editexammessage $deleteexammessage</p>";
     foreach ($courseList as $course) {
         echo "<div class=\"yvts_course\"><h2>" . $course->name . "  ";
         if (strlen($course->description) > 0) { echo "<span class=\"yvts_course_description\">" . $course->description . "</span> <span id=\"yvtsDisplayCourse" . $course->courseid . "\"><a class=\"yvts_course_edit\" onclick=\"document.getElementById('yvtsDisplayCourse" . $course->courseid . "').style.display = 'none'; document.getElementById('yvtsEditCourse" . $course->courseid . "').style.display = 'block';\">(edit)</a></span>"; }
@@ -214,16 +252,19 @@ function yvts_coursemanager_admin_courses() {
         { 
             echo "<div class=\"yvts_level\">Level: <span id=\"yvtsLevel" . $level->levelid . "\">" . $level->name . " ";
             echo " <a onclick=\"document.getElementById('yvtsLevel" . $level->levelid . "').style.display = 'none'; document.getElementById('yvtsEditLevel" . $level->levelid . "').style.display = 'block';\">(edit)</a>";
-            echo " <form method=\"post\" style=\"display: inline\"><input type=\"hidden\" name=\"deleteLevel\" value=\"" . $level->levelid . "\" /><input type=\"submit\" name=\"Delete_Level\" value=\"Delete Level\" onclick=\"return confirm('Delete this level and all exams within it?');\" /></form>";
+            echo " <form method=\"post\" style=\"display: inline\"><input type=\"hidden\" name=\"deleteLevel\" value=\"" . $level->levelid . "\" /><input type=\"submit\" class=\"yvts_delete_button\" name=\"Delete_Level\" value=\"Delete Level\" onclick=\"return confirm('Delete this level and all exams within it?');\" /></form>";
             echo "<div id=\"yvtsEditLevel" . $level->levelid . "\" style=\"display: none;\"><form method=\"post\"><label for=\"editlevel" . $level->levelid . "\">Name</label><input type=\"text\" name=\"editlevel" . $level->levelid . "\" value=\"" . $level->name . "\" /><input type=\"hidden\" name=\"editlevelID\" value=\"" . $level->levelid . "\" /><input type=\"submit\" name=\"Edit_Level\" value=\"Save Level\" /></form></div>";
             echo "<br />"  . count($level->exams) . " exams offered <a id=\"yvtsShowExams" . $level->levelid . "\" onclick=\"document.getElementById('yvtsShowExams" . $level->levelid . "').style.display = 'none'; document.getElementById('yvtsexamsin" . $level->levelid . "').style.display = 'block';\">(show)</a> <a id=\"yvtsAddExam" . $level->levelid . "\" onclick=\"document.getElementById('yvtsAddExam" . $level->levelid . "').style.display = 'none'; document.getElementById('newexamin" . $level->levelid ."').style.display = 'block';\">(add)</a>";
             echo "</span> ";
             echo "<div style=\"display:none;\" id=\"newexamin" . $level->levelid ."\"><form method=\"post\" style=\"display: inline\"><label for=\"newexam" . $level->levelid . "\">Name</label><input type=\"text\" name=\"newexam" . $level->levelid . "\" value=\"\" /><br /><input type=\"hidden\" name=\"newExamLevelID\" value=\"" . $level->levelid . "\" /><input type=\"submit\" name=\"Add_New_Exam\" value=\"Add New Exam to level " . $level->name . " in course " . $course->name . "\" /></form></div>";
             echo "</div>";
-            echo "<div id=\"yvtsexamsin" . $level->levelid . "\" class=\"yvts_exam\">";
+            echo "<div id=\"yvtsexamsin" . $level->levelid . "\" class=\"yvts_exam\" style=\"display:none\">";
             foreach($level->exams as $exam)
             {
-                echo "" . $exam->name . " (edit) (delete) <br />";
+                echo "<span id=\"yvtsExam" . $exam->examid . "\">" . $exam->name . " <a onclick=\"document.getElementById('yvtsExam" . $exam->examid . "').style.display = 'none'; document.getElementById('yvtsEditExam" . $exam->examid . "').style.display = 'block';\">(edit)</a> ";
+                echo " <form method=\"post\" style=\"display: inline\"><input type=\"hidden\" name=\"deleteExam\" value=\"" . $exam->examid . "\" /><input type=\"submit\" class=\"yvts_delete_button\" name=\"Delete_Exam\" value=\"Delete Exam\" onclick=\"return confirm('Delete this exam?');\" /></form>";
+                echo " </span><br />";
+                echo "<div id=\"yvtsEditExam" . $exam->examid . "\" style=\"display: none;\"><form method=\"post\"><label for=\"editexam" . $exam->examid . "\">Name</label><input type=\"text\" name=\"editexam" . $exam->examid . "\" value=\"" . $exam->name . "\" /><input type=\"hidden\" name=\"editexamID\" value=\"" . $exam->examid . "\" /><input type=\"submit\" name=\"Edit_Exam\" value=\"Save Exam\" /></form></div>";
             }
             echo "</div>";
         }
@@ -244,6 +285,16 @@ function yvts_coursemanager_admin_submissions() {
 	}
 	echo '<div class="wrap">';
 	echo '<p>TODO: Show submitted applications.</p>';
+	echo '</div>';
+}
+
+function yvts_coursemanager_admin_schedules() {
+	if ( !current_user_can( 'manage_options' ) )  {
+		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+	}
+	echo '<div class="wrap">';
+    echo '<p>TODO: Show Scheduled courses, add ability to schedule a course</p>';
+    echo "<p></p>";
 	echo '</div>';
 }
 
