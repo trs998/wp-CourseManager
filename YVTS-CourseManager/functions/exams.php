@@ -15,6 +15,21 @@ class yvts_exam {
         return $result;
     }
     
+    public static function getCount() {
+        global $wpdb;
+
+        //fetch total number of exams or return false for error.
+        
+        $table_name = $wpdb->prefix . "yvts_exams"; 
+    
+        $result = $wpdb->get_results( "SELECT COUNT(`examid`) AS `count` FROM `$table_name`");
+        if (count($result) == 1) {
+            //collect levels
+            return $result[0]->count;
+        }
+        return $result;
+    }
+    
     public static function createExam($levelID, $newname) {
         global $wpdb;
 

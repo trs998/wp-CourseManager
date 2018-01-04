@@ -8,10 +8,11 @@ defined( 'ABSPATH' ) or die( 'No Direct Access' );
 include "functions/exams.php";
 include "functions/levels.php";
 include "functions/courses.php";
+include "functions/coursesRunning.php";
 
 function yvts_coursemanager_install () {
 
-    add_option( "yvts_coursemanager_db_version", "1.0" );
+    add_option( "yvts_coursemanager_db_version", "3.0" );
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -39,16 +40,19 @@ function yvts_coursemanager_install () {
     ) $charset_collate;";
     
     dbDelta( $sql );
-
-    //FIXME - needs more tables:  CourseRunning and Exams 
-}
-
-function yvts_coursemanager_upgrade_db_1_to_2() {
+    $table_name = $wpdb->prefix . "yvts_courseRunning"; 
     
-    global $wpdb;
+    $sql = "CREATE TABLE $table_name (
+      `courseRunning_ID` mediumint(9) unsigned NOT NULL AUTO_INCREMENT,
+      `edittime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `levelid` mediumint(9) NOT NULL,
+      `starttime` date NOT NULL,
+      `endtime` date NOT NULL,
+      `note` text,
+        PRIMARY KEY  (courseRunning_ID)
+    ) $charset_collate;";
     
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    $charset_collate = $wpdb->get_charset_collate();
+    dbDelta( $sql );
     
     $table_name = $wpdb->prefix . "yvts_exams"; 
     
@@ -60,15 +64,17 @@ function yvts_coursemanager_upgrade_db_1_to_2() {
     ) $charset_collate;";
     
     dbDelta( $sql );
+}
 
-    return "2.0";
+function yvts_coursemanager_upgrade_db_2_to_3() {
+    return "3.0";
 }
 
 function yvts_coursemanager_upgrade() {
-    //from 1 to 2 DB format
+    //from 2 to 3 DB format
     global $wpdb;
     $DBVersion = get_option("yvts_coursemanager_db_version");
-    if ($DBVersion == "1.0") { $DBVersion = yvts_coursemanager_upgrade_db_1_to_2(); }
+    if ($DBVersion == "2.0") { $DBVersion = yvts_coursemanager_upgrade_db_2_to_3(); }
     if ($DBVersion != get_option("yvts_coursemanager_db_version")) {
         update_option( "yvts_coursemanager_db_version", "$DBVersion" );
     }
@@ -88,6 +94,7 @@ function yvts_coursemanager_admin() {
     }
     echo "<p>List summary information</p>";
     echo "<p>Show counts of data - courses, levels and exams.</p>";
+    echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels and " . yvts_exam::getCount() . " exams.</p>";
 }
 
 function yvts_coursemanager_admin_courses() {
@@ -229,6 +236,7 @@ function yvts_coursemanager_admin_courses() {
 
     echo '<div class="wrap">';
     echo "<h2>List of courses (methods) on system, with levels for each course.</h2>";
+    echo "<h3>TODO: Ability to delete a course with a warning it'll remove all the levels and exams inside it. What does that do about scheduled courses?</h3>";
     echo "<style type=\"text/css\">";
     echo ".yvts_course { margin-left: 0px; }\n";
     echo ".yvts_course_description { font-size: 70%; font-weight: normal; }\n";
@@ -243,7 +251,8 @@ function yvts_coursemanager_admin_courses() {
     echo "<p>$editcoursemessage $newlevelmessage $editlevelmessage $editexammessage $deleteexammessage</p>";
     foreach ($courseList as $course) {
         echo "<div class=\"yvts_course\"><h2>" . $course->name . "  ";
-        if (strlen($course->description) > 0) { echo "<span class=\"yvts_course_description\">" . $course->description . "</span> <span id=\"yvtsDisplayCourse" . $course->courseid . "\"><a class=\"yvts_course_edit\" onclick=\"document.getElementById('yvtsDisplayCourse" . $course->courseid . "').style.display = 'none'; document.getElementById('yvtsEditCourse" . $course->courseid . "').style.display = 'block';\">(edit)</a></span>"; }
+        if (strlen($course->description) > 0) { echo "<span class=\"yvts_course_description\">" . $course->description . "</span> "; }
+        echo "<span id=\"yvtsDisplayCourse" . $course->courseid . "\"><a class=\"yvts_course_edit\" onclick=\"document.getElementById('yvtsDisplayCourse" . $course->courseid . "').style.display = 'none'; document.getElementById('yvtsEditCourse" . $course->courseid . "').style.display = 'block';\">(edit)</a></span>";
         echo "</h2>";
         echo " Actions: Delete ";
         echo "<div id=\"yvtsEditCourse" . $course->courseid . "\" style=\"display: none;\"><form method=\"post\"><label for=\"editcourse" . $course->courseid . "\">Name</label><input type=\"text\" name=\"editcourse" . $course->courseid . "\" value=\"" . $course->name . "\" /><br /><label for=\"editcoursedesc" . $course->courseid . "\">Description:</label><input type=\"text\" name=\"editcoursedesc" . $course->courseid . "\" value=\"" . $course->description . "\" /><br /><input type=\"hidden\" name=\"editcourseID\" value=\"" . $course->courseid . "\" /><input type=\"submit\" name=\"Edit_Course\" value=\"Save Course\" /></form></div>";
@@ -284,19 +293,12 @@ function yvts_coursemanager_admin_submissions() {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
 	echo '<div class="wrap">';
-	echo '<p>TODO: Show submitted applications.</p>';
+    echo "<h2>List of submissions made against scheduled courses with exams selected.</h2>";
+    echo "<h3>TODO: View list, export list since last export, export whole list</h3>";
 	echo '</div>';
 }
 
-function yvts_coursemanager_admin_schedules() {
-	if ( !current_user_can( 'manage_options' ) )  {
-		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-	}
-	echo '<div class="wrap">';
-    echo '<p>TODO: Show Scheduled courses, add ability to schedule a course</p>';
-    echo "<p></p>";
-	echo '</div>';
-}
+include "functions/yvts_coursemanager_admin_schedules.php";
 
 register_activation_hook( __FILE__, 'yvts_coursemanager_install' );
 

@@ -23,6 +23,21 @@ class yvts_course {
         return $result;
     }
 
+    public static function getCount() {
+        global $wpdb;
+
+        //fetch total number of courses or return false for error.
+        
+        $table_name = $wpdb->prefix . "yvts_courses"; 
+    
+        $result = $wpdb->get_results( "SELECT COUNT(`courseid`) AS `count` FROM `$table_name`");
+        if (count($result) == 1) {
+            //collect levels
+            return $result[0]->count;
+        }
+        return $result;
+    }
+
     public static function createCourse($newcoursename,$newcoursedesc) {
         global $wpdb;
 
@@ -54,7 +69,7 @@ class yvts_course {
         $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `courseid` = %d", $courseID );
         $result = $wpdb->get_results($sql);
         if (count($result) == 1) {
-            $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `name` = \"%s\"", $newcoursename );
+            $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `name` = \"%s\" AND `courseid` != %d", $newcoursename, $courseID );
             $result = $wpdb->get_results($sql);
             if (count($result) == 0) {
                 //proceed to update

@@ -19,6 +19,21 @@ class yvts_level {
         return $result;
     }
     
+    public static function getCount() {
+        global $wpdb;
+
+        //fetch total number of levels or return false for error.
+        
+        $table_name = $wpdb->prefix . "yvts_levels"; 
+    
+        $result = $wpdb->get_results( "SELECT COUNT(`levelid`) AS `count` FROM `$table_name`");
+        if (count($result) == 1) {
+            //collect levels
+            return $result[0]->count;
+        }
+        return $result;
+    }
+    
     public static function createLevel($courseID, $newlevelname) {
         global $wpdb;
 
