@@ -33,6 +33,18 @@ class yvts_level {
         }
         return $result;
     }
+
+    public static function getCoursesAndLevels() {
+        global $wpdb;
+        //returns levelid, coursename and levelname
+
+        $table_name_courses = $wpdb->prefix . "yvts_courses"; 
+        $table_name_levels = $wpdb->prefix . "yvts_levels"; 
+        
+        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`name` as `levelname`, `$table_name_courses`.`name` as `coursename` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` ORDER BY `$table_name_courses`.`name`, `$table_name_levels`.`name` ASC");
+        return $result;
+
+    }
     
     public static function createLevel($courseID, $newlevelname) {
         global $wpdb;
@@ -92,13 +104,15 @@ class yvts_level {
 
     public static function deleteLevel($levelID) {
         global $wpdb;
-        $table_name_sub = $wpdb->prefix . "yvts_examss"; 
+        $table_name_sub_sub = $wpdb->prefix . "yvts_courseRunning"; 
+        $table_name_sub = $wpdb->prefix . "yvts_exams"; 
         $table_name = $wpdb->prefix . "yvts_levels"; 
 
         $sql = $wpdb->prepare( "SELECT * FROM `$table_name` WHERE `levelid` = %d", $levelID );
         $result = $wpdb->get_results($sql);
         if (count($result) == 1) {
-            $result = $wpdb->delete($table_name_exams,array("levelid" => $levelID),array('%d'));
+            $result = $wpdb->delete($table_name_sub_sub,array("levelid" => $levelID),array('%d'));
+            $result = $wpdb->delete($table_name_sub,array("levelid" => $levelID),array('%d'));
             $result = $wpdb->delete($table_name,array("levelid" => $levelID),array('%d'));
             if ($result === 1) {
                 return true;
