@@ -88,7 +88,7 @@ function yvts_coursemanager_admin_schedules() {
 	}
 
 	$courses = yvts_courseRunning::getCoursesRunning($displayYear);
-	echo '<p>TODO: Show Scheduled courses, add ability to schedule a course, including scheduling it out of displayed year</p>';
+	echo '<p>TODO: Edit displayed courses scheduled</p>';
 	/*	
 	courseRunning_ID
 	edittime

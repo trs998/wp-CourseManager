@@ -92,9 +92,21 @@ function yvts_coursemanager_admin() {
 	if ( !current_user_can( 'manage_options' ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
+
+    if (isset($_POST["yvts_applicationpage"])) { update_option("yvts_coursemanager_application_page",$_POST["yvts_applicationpage"]); }
+
     echo "<p>List summary information</p>";
     echo "<p>Show counts of data - courses, levels and exams.</p>";
-    echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels and " . yvts_exam::getCount() . " exams.</p>";
+    echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels, " . yvts_courseRunning::getCount() . " scheduled courses and " . yvts_exam::getCount() . " exams.</p>";
+    echo "<p>To display the scheduled courses, use shortcode [yvts_schedule year=\"2019\"] - if you use the shortcode with no year attribute like [yvts_schedule] the displayed schedule will use the current year.</p>";
+    echo "<p>To display the application page, use shortcode [yvts_application] - you'll also need to enter the url of the page you'd added this code to below, so the schedule can link to your chosen application page.</p>";
+    
+    echo "<p><label for=\"yvts_applicationpage\">Application Page (with the  application shortcode in place):</label> ";
+    echo "<form method=\"post\"><input style=\"width: 50em;\" name=\"yvts_applicationpage\" id=\"yvts_applicationpage\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_application_page");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" /><input name=\"yvts_applicationpage_sub\" type=\"submit\" value=\"Save Application Page\" /></form>";
+    echo "</p>";
 }
 
 function yvts_coursemanager_admin_submissions() {
@@ -110,6 +122,9 @@ function yvts_coursemanager_admin_submissions() {
 include "functions/yvts_coursemanager_admin_courses.php";
 include "functions/yvts_coursemanager_admin_schedules.php";
 
+include "functions/yvts_coursemanager_render.php";
+include "functions/yvts_coursemanager_application.php";
+
 function yvts_coursemanager_load_plugin_css() {
     $plugin_url = plugin_dir_url( __FILE__ );
 
@@ -123,5 +138,9 @@ register_activation_hook( __FILE__, 'yvts_coursemanager_install' );
 add_action( 'admin_menu', 'yvts_coursemanager_admin_menu' );
 
 add_action( 'plugins_loaded', 'yvts_coursemanager_upgrade' );
+
+add_shortcode( 'yvts_application', 'yvts_coursemanager_application' );
+
+add_shortcode( 'yvts_schedule', 'yvts_coursemanager_render' );
 
 ?>

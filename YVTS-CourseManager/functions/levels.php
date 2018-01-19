@@ -45,6 +45,24 @@ class yvts_level {
         return $result;
 
     }
+
+    public static function getLevelDetails($levelID) {
+        global $wpdb;
+        //returns levelid, coursename and levelname
+
+        if (! is_numeric($levelID)) { return false; }
+
+        $table_name_courses = $wpdb->prefix . "yvts_courses"; 
+        $table_name_levels = $wpdb->prefix . "yvts_levels"; 
+        
+        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`levelname` as `levelname`, `$table_name_levels`.`levelid` AS `levelid`, `$table_name_courses`.`name` as `coursename`, `$table_name_courses`.`description` AS `coursedesc` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` WHERE `$table_name_levels`.`levelid` = $levelID");
+        
+        if (count($result) == 1) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
     
     public static function createLevel($courseID, $newlevelname) {
         global $wpdb;
