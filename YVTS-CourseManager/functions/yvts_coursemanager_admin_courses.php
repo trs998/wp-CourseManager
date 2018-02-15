@@ -1,4 +1,3 @@
-
 <?php
 //split out to avoid massive file
 
@@ -52,11 +51,12 @@ function yvts_coursemanager_admin_courses() {
     if (isset($_POST["newLevelCourseID"])) {
         $newlevelcourseID = $_POST["newLevelCourseID"];
         $newlevel = trim($_POST["newlevel".$_POST["newLevelCourseID"]]);
+        $newlevelprice = trim($_POST["newlevelprice".$_POST["newLevelCourseID"]]);
         if (strlen($newlevel) < 1) {
             $newlevelmessage = "<span style=\"color: red\">New Level Name needs to be entered</span>";
         } else {
             //add new level
-            $newlevelresult = yvts_level::createLevel($newlevelcourseID,$newlevel);
+            $newlevelresult = yvts_level::createLevel($newlevelcourseID,$newlevel,$newlevelprice);
             if ($newlevelresult === true) {
                 $newlevelmessage = "<span style=\"color: green\">New Level \"$newlevel\" created successfully</span>";
             } else {
@@ -72,10 +72,11 @@ function yvts_coursemanager_admin_courses() {
         //$_POST["editcourse".$_POST["editcourseID"]];
         $editedlevelID = trim($_POST["editlevelID"]);
         $editedlevel = trim($_POST["editlevel".$_POST["editlevelID"]]);
+        $editedlevelprice = trim($_POST["editlevelprice".$_POST["editlevelID"]]);
         if (strlen($editedlevel) < 1) {
             $editlevelmessage = "<span style=\"color: red\">Edited Level Name needs to be entered</span>";
         } else {
-            $editlevelresult = yvts_level::updateLevel($editedlevelID, $editedlevel);
+            $editlevelresult = yvts_level::updateLevel($editedlevelID, $editedlevel, $editedlevelprice);
             if ($editlevelresult === true) {
                 $editlevelmessage = "<span style=\"color: green\">Edited Level \"$editedlevel\" saved successfully</span>";
             } else {
@@ -157,10 +158,15 @@ function yvts_coursemanager_admin_courses() {
         foreach($course->levels as $level)
         { 
             echo "<div class=\"yvts_level\">Level: <span id=\"yvtsLevel" . $level->levelid . "\">" . $level->name . " ";
+            if ($level->levelprice == 0) { 
+                echo "-P.O.A-";
+            } else {
+                echo "&pound;" . $level->levelprice;
+            }
             echo " <a onclick=\"document.getElementById('yvtsLevel" . $level->levelid . "').style.display = 'none'; document.getElementById('yvtsEditLevel" . $level->levelid . "').style.display = 'block';\">(edit)</a>";
             echo " <form method=\"post\" style=\"display: inline\"><input type=\"hidden\" name=\"deleteLevel\" value=\"" . $level->levelid . "\" /><input type=\"submit\" class=\"yvts_delete_button\" name=\"Delete_Level\" value=\"Delete Level\" onclick=\"return confirm('Delete this level and all exams within it?');\" /></form>";
             echo "</span> ";
-            echo "<div id=\"yvtsEditLevel" . $level->levelid . "\" style=\"display: none;\"><form method=\"post\"><label for=\"editlevel" . $level->levelid . "\">Name</label><input type=\"text\" name=\"editlevel" . $level->levelid . "\" value=\"" . $level->name . "\" /><input type=\"hidden\" name=\"editlevelID\" value=\"" . $level->levelid . "\" /><input type=\"submit\" name=\"Edit_Level\" value=\"Save Level\" /></form></div>";
+            echo "<div id=\"yvtsEditLevel" . $level->levelid . "\" style=\"display: none;\"><form method=\"post\"><label for=\"editlevel" . $level->levelid . "\">Name</label><input type=\"text\" name=\"editlevel" . $level->levelid . "\" value=\"" . $level->name . "\" /><br /><label for=\"editlevelprice" . $level->levelid . "\">Price</label><input type=\"text\" name=\"editlevelprice" . $level->levelid . "\" value=\"" . $level->levelprice . "\" /><input type=\"hidden\" name=\"editlevelID\" value=\"" . $level->levelid . "\" /><input type=\"submit\" name=\"Edit_Level\" value=\"Save Level\" /></form></div>";
             echo "<br />"  . count($level->exams) . " exams offered <a id=\"yvtsShowExams" . $level->levelid . "\" onclick=\"document.getElementById('yvtsShowExams" . $level->levelid . "').style.display = 'none'; document.getElementById('yvtsexamsin" . $level->levelid . "').style.display = 'block';\">(show)</a> <a id=\"yvtsAddExam" . $level->levelid . "\" onclick=\"document.getElementById('yvtsAddExam" . $level->levelid . "').style.display = 'none'; document.getElementById('newexamin" . $level->levelid ."').style.display = 'block';\">(add)</a>";
             echo "<div style=\"display:none;\" id=\"newexamin" . $level->levelid ."\"><form method=\"post\" style=\"display: inline\"><label for=\"newexam" . $level->levelid . "\">Name</label><input type=\"text\" name=\"newexam" . $level->levelid . "\" value=\"\" /><br /><input type=\"hidden\" name=\"newExamLevelID\" value=\"" . $level->levelid . "\" /><input type=\"submit\" name=\"Add_New_Exam\" value=\"Add New Exam to level " . $level->name . " in course " . $course->name . "\" /></form></div>";
             echo "</div>";
@@ -175,7 +181,7 @@ function yvts_coursemanager_admin_courses() {
             }
             echo "</div>";
         }
-        echo "<p><a onclick=\"document.getElementById('newlevelin" . $course->courseid ."').style.display = 'block';\">Add a new level within " . $course->name . "</a> <div style=\"display:none;\" id=\"newlevelin" . $course->courseid ."\"><form method=\"post\" style=\"display: inline\"><label for=\"newlevel" . $course->courseid . "\">Name</label><input type=\"text\" name=\"newlevel" . $course->courseid . "\" value=\"\" /><br /><input type=\"hidden\" name=\"newLevelCourseID\" value=\"" . $course->courseid . "\" /><input type=\"submit\" name=\"Add_New_Level\" value=\"Add New Level to " . $course->name . "\" /></form></div></p>";
+        echo "<p><a onclick=\"document.getElementById('newlevelin" . $course->courseid ."').style.display = 'block';\">Add a new level within " . $course->name . "</a> <div style=\"display:none;\" id=\"newlevelin" . $course->courseid ."\"><form method=\"post\" style=\"display: inline\"><label for=\"newlevel" . $course->courseid . "\">Name</label><input type=\"text\" name=\"newlevel" . $course->courseid . "\" value=\"\" /><br /><label for=\"newlevelprice" . $course->courseid . "\">Price</label><input type=\"text\" name=\"newlevelprice" . $course->courseid . "\" value=\"\" /><br /><input type=\"hidden\" name=\"newLevelCourseID\" value=\"" . $course->courseid . "\" /><input type=\"submit\" name=\"Add_New_Level\" value=\"Add New Level to " . $course->name . "\" /></form></div></p>";
         
         echo "</div>";
     }
