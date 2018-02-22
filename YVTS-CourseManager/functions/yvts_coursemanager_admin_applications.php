@@ -6,7 +6,7 @@ function yvts_coursemanager_admin_applications() {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
 
-    $types = array("textbox","textarea","checkbox","captcha");
+    $types = array("textbox","textarea","checkbox","captcha","heading");
 
     if (isset($_POST["yvts_newapplication"])) {
         $yvts_newapplication_errors = "";
