@@ -13,7 +13,7 @@ include "functions/applications.php";
 
 function yvts_coursemanager_install () {
 
-    add_option( "yvts_coursemanager_db_version", "5.1" );
+    add_option( "yvts_coursemanager_db_version", "6" );
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -72,10 +72,10 @@ function yvts_coursemanager_install () {
     $sql = "CREATE TABLE $table_name (
         `applicationid` mediumint(9) NOT NULL AUTO_INCREMENT,
         `position` mediumint(9) NOT NULL,
-        `name` tinytext NOT NULL,
+        `name` text NOT NULL,
         `type` tinytext NOT NULL,
         `minlength` mediumint(9) NOT NULL,
-        `hint` tinytext NOT NULL DEFAULT '',
+        `hint` text NOT NULL DEFAULT '',
         PRIMARY KEY `applicationid` (`applicationid`)
     ) $charset_collate;";
     
@@ -144,6 +144,26 @@ function yvts_coursemanager_upgrade_db_5_to_5_1() {
     return "5.1";
 }
 
+function yvts_coursemanager_upgrade_db_5_1_to_6() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_application"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        `applicationid` mediumint(9) NOT NULL AUTO_INCREMENT,
+        `position` mediumint(9) NOT NULL,
+        `name` text NOT NULL,
+        `type` tinytext NOT NULL,
+        `minlength` mediumint(9) NOT NULL,
+        `hint` text NOT NULL DEFAULT '',
+        PRIMARY KEY `applicationid` (`applicationid`)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "6";
+}
+
 function yvts_coursemanager_upgrade() {
     //from old to new DB formats
     global $wpdb;
@@ -152,6 +172,7 @@ function yvts_coursemanager_upgrade() {
     if ($DBVersion == "3.0") { $DBVersion = yvts_coursemanager_upgrade_db_3_to_4(); }
     if ($DBVersion == "4.0") { $DBVersion = yvts_coursemanager_upgrade_db_4_to_5(); }
     if ($DBVersion == "5.0") { $DBVersion = yvts_coursemanager_upgrade_db_5_to_5_1(); }
+    if ($DBVersion == "5.1") { $DBVersion = yvts_coursemanager_upgrade_db_5_1_to_6(); }
     if ($DBVersion != get_option("yvts_coursemanager_db_version")) {
         update_option( "yvts_coursemanager_db_version", "$DBVersion" );
     }
@@ -171,20 +192,37 @@ function yvts_coursemanager_admin() {
     }
 
     if (isset($_POST["yvts_applicationpage"])) { update_option("yvts_coursemanager_application_page",$_POST["yvts_applicationpage"]); }
+    if (isset($_POST["yvts_captchapublic"])) { update_option("yvts_coursemanager_captcha_public",$_POST["yvts_captchapublic"]); }
+    if (isset($_POST["yvts_captchaprivate"])) { update_option("yvts_coursemanager_captcha_private",$_POST["yvts_captchaprivate"]); }
 
-    echo "<p>List summary information</p>";
+    echo "<p>List summary information:</p>";
     echo "<p>Show counts of data - courses, levels and exams.</p>";
     echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels, " . yvts_courseRunning::getCount() . " scheduled courses and " . yvts_exam::getCount() . " exams.</p>";
-    echo "<p>there are " . yvts_application::getCount() . " form fields on the application page.</p>";
+    echo "<p>There are " . yvts_application::getCount() . " form fields on the application page.</p>";
     echo "<p>To display the scheduled courses, use shortcode [yvts_schedule year=\"2019\"] - if you use the shortcode with no year attribute like [yvts_schedule] the displayed schedule will use the current year.</p>";
     echo "<p>To display the application page, use shortcode [yvts_application] - you'll also need to enter the url of the page you'd added this code to below, so the schedule can link to your chosen application page.</p>";
     
-    echo "<p><label for=\"yvts_applicationpage\">Application Page (with the  application shortcode in place):</label> ";
-    echo "<form method=\"post\"><input style=\"width: 50em;\" name=\"yvts_applicationpage\" id=\"yvts_applicationpage\" value=\"";
+    echo "<h3>Application page.</h3>";
+    echo "<form method=\"post\">";
+    echo "<p><label for=\"yvts_applicationpage\">Application Page (with the  application shortcode in place):</label><input style=\"width: 40em;\" name=\"yvts_applicationpage\" id=\"yvts_applicationpage\" value=\"";
     $applicationpage = get_option("yvts_coursemanager_application_page");
     if ($applicationpage != false) { echo "$applicationpage"; };
     echo "\" /><input name=\"yvts_applicationpage_sub\" type=\"submit\" value=\"Save Application Page\" /></form>";
     echo "</p>";
+
+    echo "<h3>reCaptcha settings.</h3>";
+    echo "<p>Below you can add the details for <a href=\"https://www.google.com/recaptcha/\">Recaptcha</a> - if you then add a form field under \"applications\" of type \"captcha\" and these boxes are filled in, a recaptcha will be added to the application form at that location.</p>";
+    echo "<p><label for=\"yvts_captchapublic\">ReCaptcha Site Key:</label> ";
+    echo "<form method=\"post\"><input style=\"width: 40em;\" name=\"yvts_captchapublic\" id=\"yvts_captchapublic\" value=\"";
+    $captchapublic = get_option("yvts_coursemanager_captcha_public");
+    if ($captchapublic != false) { echo "$captchapublic"; };
+    echo "\" /><br /><label for=\"yvts_captchaprivate\">Recaptcha Private Key:</label> ";
+    echo "<form method=\"post\"><input style=\"width: 40em;\" name=\"yvts_captchaprivate\" id=\"yvts_captchaprivate\" value=\"";
+    $captchaprivate = get_option("yvts_coursemanager_captcha_private");
+    if ($captchaprivate != false) { echo "$captchaprivate"; };
+    echo "\" /><br /><input name=\"yvts_captcha_sub\" type=\"submit\" value=\"Save Captcha\" />";
+    echo "</p></form>";
+    echo "<p style=\"font-size: 80%; text-align: right;\">Database Version: " . get_option("yvts_coursemanager_db_version") . "</p>";
 }
 
 include "functions/yvts_coursemanager_admin_courses.php";
@@ -198,6 +236,7 @@ function yvts_coursemanager_load_plugin_css() {
     $plugin_url = plugin_dir_url( __FILE__ );
 
     wp_enqueue_style( 'yvts_style', $plugin_url . 'css/style.css',array(), filemtime( plugin_dir_path( __FILE__ ) .  'css/style.css' ) );
+    wp_enqueue_script('google-captcha', '//www.google.com/recaptcha/api.js', array(), '3', true);
 }
 
 yvts_coursemanager_upgrade();

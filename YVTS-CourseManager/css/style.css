@@ -7,11 +7,12 @@
 .yvts_exam { margin-left: 100px; }
 .yvts_delete_button { padding: 1px; }
 .yvts_course_edit { font-weight: normal; }
-.yvts_input_text { display: block; }
+.yvts_input_text { display: block; clear: both; }
 .yvts_input_text > label { clear: left; float: left; display: block; width: 300px; text-align: right; }
 .yvts_input_text > input,textarea { display: block; width: 300px; }
 .yvts_input_text > input[type=checkbox] { display: block; width: 20px; float: left; }
-.yvts_mandatory > input,textarea { background-color: pink; display: block; }
+.yvts_mandatory > input,textarea { display: block; }
 .yvts_field_checkbox { display: inline; }
 .yvts_footer { font-size: 80%; margin-top: 100px; }
 .yvts_admin_fields { text-align: left; }
+.yvts_input_text > .g-recaptcha { float: left; }

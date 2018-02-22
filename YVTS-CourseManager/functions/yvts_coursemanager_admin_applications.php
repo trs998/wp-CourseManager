@@ -6,7 +6,7 @@ function yvts_coursemanager_admin_applications() {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
 
-    $types = array("textbox","textarea","checkbox");
+    $types = array("textbox","textarea","checkbox","captcha");
 
     if (isset($_POST["yvts_newapplication"])) {
         $yvts_newapplication_errors = "";
@@ -71,7 +71,7 @@ function yvts_coursemanager_admin_applications() {
 
 	echo '<div class="wrap">';
     echo "<h2>List of form fields on the application page.</h2>";
-    echo "<h3>TODO: View list, add item, update item, delete item, move item up, move item down</h3>";
+    echo "<h3>TODO: delete item</h3>";
     
 	if ($yvts_edited_errors != "") {
 		echo "<div style=\"color: red\">$yvts_edited_errors</div>";
@@ -110,13 +110,13 @@ function yvts_coursemanager_admin_applications() {
         echo "
         </select>
         </td>
-        <td><span id=\"yvts_editField_name_" . $applications[$i]->applicationid . "\">" . $applications[$i]->name . "</span><input style=\"display: none;\" type=\"text\" id=\"yvts_editField_name_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_name_" . $applications[$i]->applicationid . "_e\" value=\"" . $applications[$i]->name . "\" /></td>
+        <td><span id=\"yvts_editField_name_" . $applications[$i]->applicationid . "\">" . stripcslashes($applications[$i]->name) . "</span><input style=\"display: none;\" type=\"text\" id=\"yvts_editField_name_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_name_" . $applications[$i]->applicationid . "_e\" value=\"" . stripcslashes($applications[$i]->name) . "\" /></td>
         <td><span id=\"yvts_editField_minlength_" . $applications[$i]->applicationid . "\">";
         if ($applications[$i]->minlength > 0) { echo $applications[$i]->minlength; } else {
             echo "none";
         }
         echo "</span><input style=\"display: none; width: 3em;\" type=\"text\" id=\"yvts_editField_minlength_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_minlength_" . $applications[$i]->applicationid . "_e\" value=\"" . $applications[$i]->minlength . "\" /></td>
-        <td><span id=\"yvts_editField_hint_" . $applications[$i]->applicationid . "\"><i>" . $applications[$i]->hint . "</i></span><input style=\"display: none; width: 20em;\" type=\"text\" id=\"yvts_editField_hint_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_hint_" . $applications[$i]->applicationid . "_e\" value=\"" . $applications[$i]->hint . "\" /></td>";
+        <td><span id=\"yvts_editField_hint_" . $applications[$i]->applicationid . "\"><i>" . stripcslashes($applications[$i]->hint) . "</i></span><input style=\"display: none; width: 20em;\" type=\"text\" id=\"yvts_editField_hint_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_hint_" . $applications[$i]->applicationid . "_e\" value=\"" . stripcslashes($applications[$i]->hint) . "\" /></td>";
         echo "<td><a id=\"yvts_editField_submit_" . $applications[$i]->applicationid . "\" onclick=\"editform" . $applications[$i]->applicationid . "();\">edit</a>
         <input type=\"submit\" style=\"display: none;\" id=\"yvts_editField_submit_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_submit_" . $applications[$i]->applicationid . "_e\" value=\"Save\" />
         (delete)</td>";
@@ -143,12 +143,12 @@ function yvts_coursemanager_admin_applications() {
     echo "
     </select><br />
 
-    <label form=\"yvts_newapplication_position\">New Field Position Number:</label> <input type=\"text\" id=\"yvts_newapplication_position\" name=\"yvts_newapplication_position\" value=\"" . $yvts_newapplication_position . "\" /><br />
+    <label form=\"yvts_newapplication_position\">New Field Position Number:</label> <input style=\"width: 10em;\" type=\"text\" id=\"yvts_newapplication_position\" name=\"yvts_newapplication_position\" value=\"" . $yvts_newapplication_position . "\" /><br />
     <label form=\"yvts_newapplication_minlength\">Minimum Length of input:</label> <input type=\"text\" id=\"yvts_newapplication_minlength\" name=\"yvts_newapplication_minlength\" value=\"";
     if ((!isset($yvts_newapplication_minlength)) || (!is_numeric($yvts_newapplication_minlength))) { echo "0"; } else { echo $yvts_newapplication_minlength; }
     echo "\" /> (If this field is not mandatory, leave as 0 minimum length)<br />
     
-    <label form=\"yvts_newapplication_note\">New Form Field Note:</label> <input type=\"text\" id=\"yvts_newapplication_note\" name=\"yvts_newapplication_note\" value=\"" . $yvts_newapplication_note . "\" /><br />
+    <label form=\"yvts_newapplication_note\">New Form Field Note:</label> <input style=\"width: 10em;\" type=\"text\" id=\"yvts_newapplication_note\" name=\"yvts_newapplication_note\" value=\"" . $yvts_newapplication_note . "\" /><br />
     <input type=\"submit\" name=\"yvts_newapplication\" value=\"Save New Form Field\" />
     </form>
     </div>";
