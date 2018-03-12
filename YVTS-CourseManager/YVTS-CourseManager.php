@@ -192,6 +192,7 @@ function yvts_coursemanager_admin() {
     }
 
     if (isset($_POST["yvts_applicationpage"])) { update_option("yvts_coursemanager_application_page",$_POST["yvts_applicationpage"]); }
+    if (isset($_POST["yvts_schedulepage"])) { update_option("yvts_coursemanager_schedule_page",$_POST["yvts_schedulepage"]); }
     if (isset($_POST["yvts_captchapublic"])) { update_option("yvts_coursemanager_captcha_public",$_POST["yvts_captchapublic"]); }
     if (isset($_POST["yvts_captchaprivate"])) { update_option("yvts_coursemanager_captcha_private",$_POST["yvts_captchaprivate"]); }
 
@@ -207,7 +208,11 @@ function yvts_coursemanager_admin() {
     echo "<p><label for=\"yvts_applicationpage\">Application Page (with the  application shortcode in place):</label><input style=\"width: 40em;\" name=\"yvts_applicationpage\" id=\"yvts_applicationpage\" value=\"";
     $applicationpage = get_option("yvts_coursemanager_application_page");
     if ($applicationpage != false) { echo "$applicationpage"; };
-    echo "\" /><input name=\"yvts_applicationpage_sub\" type=\"submit\" value=\"Save Application Page\" /></form>";
+    echo "\" />";
+    echo "<p><label for=\"yvts_schedulepage\">Schedule Page (where users are linked to if arriving at the application page with no course requested):</label><input style=\"width: 40em;\" name=\"yvts_schedulepage\" id=\"yvts_schedulepage\" value=\"";
+    $schedulepage = get_option("yvts_coursemanager_schedule_page");
+    if ($schedulepage != false) { echo "$schedulepage"; };
+    echo "\" /><input name=\"yvts_applicationpage_sub\" type=\"submit\" value=\"Save Pages\" /></form>";
     echo "</p>";
 
     echo "<h3>reCaptcha settings.</h3>";

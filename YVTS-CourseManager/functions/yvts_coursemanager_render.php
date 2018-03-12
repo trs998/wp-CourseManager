@@ -29,8 +29,10 @@ function yvts_coursemanager_render($attributes) {
             $schedule = $schedule . "<table class=\"yvts_courseRunning\">";
             $schedule = $schedule .  "<tr><th>" . $courses[$i]->coursename . " " . $courses[$i]->levelname . " <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></th><th>";
             if ($courses[$i]->levelprice != 0) {
-                $schedule = $schedule .  "&pound;" . $courses[$i]->levelprice;
-            } else {
+                $schedule = $schedule .  "&pound;" . number_format($courses[$i]->levelprice,0,".",",");
+            } /* elseif ((isset($courses[$i+1])) && ($courses[$i+1]->coursename == $courses[$i]->coursename) && ($courses[$i+1]->levelprice != 0)) {
+                $schedule = $schedule .  "&pound;" . $courses[$i+1]->levelprice;
+            } */ else {
                 $schedule = $schedule .  "P.O.A";
             }
             $schedule = $schedule .  "</th></tr>";
@@ -48,7 +50,7 @@ function yvts_coursemanager_render($attributes) {
             $schedule = $schedule .  "</td></tr>";
             // date("d-m-Y \(l",$courses[$i]->starttimeU) . " of week " . date("W",$courses[$i]->starttimeU) . ") to "  . date("d-m-Y \(l",$courses[$i]->endtimeU) . " of week " . date("W",$courses[$i]->endtimeU) . ") running for " . round($courses[$i]->days) . " days";
 		} else {
-            $schedule = $schedule .  "<tr><td>Level " . $courses[$i]->levelname . " are scheduled on demand ";
+            $schedule = $schedule .  "<tr><td colspan=\"2\">Level " . $courses[$i]->levelname . " are scheduled on demand ";
             if (($applicationpage != false) && ($courses[$i]->starttimeU > date("U"))) {
                 $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">Apply for this course.</a>";
             };
