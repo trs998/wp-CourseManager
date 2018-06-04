@@ -75,6 +75,38 @@ class yvts_courseRunning {
     }
   }
 
+  static function getNextCourse($courseRunningID = -1) {
+    if ((! is_numeric($courseRunningID)) || ($courseRunningID == -1)) { return false; }
+    $details = yvts_courseRunning::getCourseRunningDetails($courseRunningID);
+    if ($details == false) { return false; }
+    global $wpdb;
+    $table_name_courseRunning = $wpdb->prefix . "yvts_courseRunning";
+    $sql = $wpdb->prepare("SELECT `courseRunning_ID` FROM `$table_name_courseRunning` WHERE UNIX_TIMESTAMP(`starttime`) > " . $details->endtimeU . " ORDER BY `starttime` ASC LIMIT 1");
+    $result = $wpdb->get_results($sql);
+
+    if (count($result) == 1) {
+        return $result[0]->courseRunning_ID;
+    } else {
+        return false;
+    }
+  }
+
+  static function getPreviousCourse($courseRunningID = -1) {
+    if ((! is_numeric($courseRunningID)) || ($courseRunningID == -1)) { return false; }
+    $details = yvts_courseRunning::getCourseRunningDetails($courseRunningID);
+    if ($details == false) { return false; }
+    global $wpdb;
+    $table_name_courseRunning = $wpdb->prefix . "yvts_courseRunning";
+    $sql = $wpdb->prepare("SELECT `courseRunning_ID` FROM `$table_name_courseRunning` WHERE UNIX_TIMESTAMP(`endtime`) < " . $details->starttimeU . " AND `starttime` IS NOT NULL AND `starttime`>NOW() ORDER BY `starttime` DESC LIMIT 1");
+    $result = $wpdb->get_results($sql);
+
+    if (count($result) == 1) {
+        return $result[0]->courseRunning_ID;
+    } else {
+        return false;
+    }
+  }
+
   static function deleteCourseRunning($courseRunningID = -1) {
     if (!is_numeric($courseRunningID)) { return false; }
     global $wpdb;

@@ -51,9 +51,11 @@ function yvts_coursemanager_render($attributes) {
             // date("d-m-Y \(l",$courses[$i]->starttimeU) . " of week " . date("W",$courses[$i]->starttimeU) . ") to "  . date("d-m-Y \(l",$courses[$i]->endtimeU) . " of week " . date("W",$courses[$i]->endtimeU) . ") running for " . round($courses[$i]->days) . " days";
 		} else {
             $schedule = $schedule .  "<tr><td colspan=\"2\">Level " . $courses[$i]->levelname . " are scheduled on demand ";
-            if (($applicationpage != false) && ($courses[$i]->starttimeU > date("U"))) {
+            if (($applicationpage != false) && (date("Y",$courses[$i]->starttimeU) == date("Y"))) {
                 $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">Apply for this course.</a>";
-            };
+            } else {
+                $schedule = $schedule .  "Year of course: " . date("Y",$courses[$i]->starttimeU) . " -  Year of now: " . date("Y");
+            }
             $schedule = $schedule .  "</td></tr>";
         }
     }

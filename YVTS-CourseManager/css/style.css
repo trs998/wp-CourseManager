@@ -3,15 +3,20 @@
 .yvts_course { margin-left: 0px; }
 .yvts_course_description { font-size: 70%; font-weight: normal; }
 .yvts_coursenote { font-style: italic; margin-left: 30px; }
+.yvts_course_application_header { font-weight: bold; font-size: 110%; }
 .yvts_level { margin-left: 60px; }
 .yvts_exam { margin-left: 100px; }
 .yvts_delete_button { padding: 1px; }
 .yvts_course_edit { font-weight: normal; }
 .yvts_input_text { display: block; clear: both; margin-top: 20px; }
 .yvts_input_text > label { clear: left; float: left; display: block; width: 300px; text-align: right; }
+.yvts_exam_line > label.yvts_examlabel { display: inline; float: none; clear: none; text-align: left; }
 .yvts_input_text > .yvts_heading { clear: left; float: left; display: block; width: 600px; text-align: left; font-weight: 800; font-size: 110%; }
-.yvts_input_text > input,textarea { display: block; width: 300px; }
+.yvts_input_text > input,textarea,select { display: block; width: 300px; }
 .yvts_input_text > input[type=checkbox] { display: block; width: 20px; float: left; }
+.yvts_input_text > div.yvts_exam_box { display: block; width: 400px; float: right; }
+.yvts_input_text > div.yvts_exam_line { display: block; clear: both; }
+.yvts_input_text > div.yvts_exam_box > input[type=checkbox] { display: block; width: 20px; float: left; }
 .yvts_input_text > .yvts_textblock { display: block; width: 600px; text-align: left; clear: left; }
 .yvts_mandatory > input,textarea { display: block; }
 .yvts_field_checkbox { display: inline; }

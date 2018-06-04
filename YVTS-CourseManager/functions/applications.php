@@ -8,8 +8,7 @@ class yvts_application {
         
         $table_name = $wpdb->prefix . "yvts_application"; 
 
-        $sql = $wpdb->prepare( "SELECT * FROM `$table_name` ORDER BY `position` ASC" );
-        $result = $wpdb->get_results($sql);
+        $result = $wpdb->get_results("SELECT * FROM `$table_name` ORDER BY `position` ASC");
         return $result;
     }
     

@@ -195,38 +195,118 @@ function yvts_coursemanager_admin() {
     if (isset($_POST["yvts_schedulepage"])) { update_option("yvts_coursemanager_schedule_page",$_POST["yvts_schedulepage"]); }
     if (isset($_POST["yvts_captchapublic"])) { update_option("yvts_coursemanager_captcha_public",$_POST["yvts_captchapublic"]); }
     if (isset($_POST["yvts_captchaprivate"])) { update_option("yvts_coursemanager_captcha_private",$_POST["yvts_captchaprivate"]); }
+    if (isset($_POST["yvts_email"])) { update_option("yvts_coursemanager_email",$_POST["yvts_email"]); }
+    if (isset($_POST["yvts_email_subject"])) { update_option("yvts_coursemanager_email_subject",$_POST["yvts_email_subject"]); }
+    if (isset($_POST["yvts_email_from"])) { update_option("yvts_coursemanager_email_from",$_POST["yvts_email_from"]); }
 
-    echo "<p>List summary information:</p>";
-    echo "<p>Show counts of data - courses, levels and exams.</p>";
-    echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels, " . yvts_courseRunning::getCount() . " scheduled courses and " . yvts_exam::getCount() . " exams.</p>";
-    echo "<p>There are " . yvts_application::getCount() . " form fields on the application page.</p>";
-    echo "<p>To display the scheduled courses, use shortcode [yvts_schedule year=\"2019\"] - if you use the shortcode with no year attribute like [yvts_schedule] the displayed schedule will use the current year.</p>";
-    echo "<p>To display the application page, use shortcode [yvts_application] - you'll also need to enter the url of the page you'd added this code to below, so the schedule can link to your chosen application page.</p>";
+    echo "<h1>Course Manager Settings</h1>";
     
-    echo "<h3>Application page.</h3>";
-    echo "<form method=\"post\">";
-    echo "<p><label for=\"yvts_applicationpage\">Application Page (with the  application shortcode in place):</label><input style=\"width: 40em;\" name=\"yvts_applicationpage\" id=\"yvts_applicationpage\" value=\"";
+    echo "<form method=\"post\" novalidate=\"novalidate\">";
+    echo "<table class=\"form-table\">";
+    echo "<tbody>";
+    
+    $fieldname = "yvts_applicationpage";
+    echo "<tr><th scope=\"row\">
+    Application Page
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
     $applicationpage = get_option("yvts_coursemanager_application_page");
     if ($applicationpage != false) { echo "$applicationpage"; };
-    echo "\" />";
-    echo "<p><label for=\"yvts_schedulepage\">Schedule Page (where users are linked to if arriving at the application page with no course requested):</label><input style=\"width: 40em;\" name=\"yvts_schedulepage\" id=\"yvts_schedulepage\" value=\"";
-    $schedulepage = get_option("yvts_coursemanager_schedule_page");
-    if ($schedulepage != false) { echo "$schedulepage"; };
-    echo "\" /><input name=\"yvts_applicationpage_sub\" type=\"submit\" value=\"Save Pages\" /></form>";
-    echo "</p>";
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    The URL of the course application page - which contains the application shortcode [yvts_application]
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_schedulepage";
+    echo "<tr><th scope=\"row\">
+    Schedule Page
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_schedule_page");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    The URL of the course schedule page - where users are linked to if arriving at the application page with no course requested.
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_email";
+    echo "<tr><th scope=\"row\">
+    Email for applications
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_email");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    Email address submitted course applications should go to.
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_email_subject";
+    echo "<tr><th scope=\"row\">
+    Email Subject
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_email_subject");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    Email subject line for submitted course applications.
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_email_from";
+    echo "<tr><th scope=\"row\">
+    Email From
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_email_from");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    Email address submitted course applications come from.
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_captchapublic";
+    echo "<tr><th scope=\"row\">
+    ReCaptcha Public Key
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_captcha_public");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    Public key for the Google ReCaptcha - you can obtain a key here <a href=\"https://www.google.com/recaptcha/\">Recaptcha</a> - if you then add a form field under \"applications\" of type \"captcha\" and these boxes are filled in, a recaptcha will be added to the application form at that location.
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_captchaprivate";
+    echo "<tr><th scope=\"row\">
+    ReCaptcha Private Key
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_captcha_private");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    Private key for the Google ReCaptcha.
+    </p>
+    </td></tr>";
+    
+    echo "</tbody>";
+    echo "</table>";
 
-    echo "<h3>reCaptcha settings.</h3>";
-    echo "<p>Below you can add the details for <a href=\"https://www.google.com/recaptcha/\">Recaptcha</a> - if you then add a form field under \"applications\" of type \"captcha\" and these boxes are filled in, a recaptcha will be added to the application form at that location.</p>";
-    echo "<p><label for=\"yvts_captchapublic\">ReCaptcha Site Key:</label> ";
-    echo "<form method=\"post\"><input style=\"width: 40em;\" name=\"yvts_captchapublic\" id=\"yvts_captchapublic\" value=\"";
-    $captchapublic = get_option("yvts_coursemanager_captcha_public");
-    if ($captchapublic != false) { echo "$captchapublic"; };
-    echo "\" /><br /><label for=\"yvts_captchaprivate\">Recaptcha Private Key:</label> ";
-    echo "<form method=\"post\"><input style=\"width: 40em;\" name=\"yvts_captchaprivate\" id=\"yvts_captchaprivate\" value=\"";
-    $captchaprivate = get_option("yvts_coursemanager_captcha_private");
-    if ($captchaprivate != false) { echo "$captchaprivate"; };
-    echo "\" /><br /><input name=\"yvts_captcha_sub\" type=\"submit\" value=\"Save Captcha\" />";
-    echo "</p></form>";
+    echo "<p class=\"submit\"><input type=\"submit\" name=\"submit\" id=\"submit\" class=\"button button-primary\" value=\"Save Changes\"  /></p>";
+
+    echo "</form>";
+
+    echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels, " . yvts_courseRunning::getCount() . " scheduled courses and " . yvts_exam::getCount() . " exams. There are " . yvts_application::getCount() . " form fields on the application page.</p>";
+    echo "<p>To display the scheduled courses, use shortcode [yvts_schedule year=\"2019\"] - if you use the shortcode with no year attribute like [yvts_schedule] the displayed schedule will use the current year.</p>";
+    echo "<p>To display the application page, use shortcode [yvts_application] - you'll also need to enter the url of the page you'd added this code to below, so the schedule can link to your chosen application page.</p>";
+
     echo "<p style=\"font-size: 80%; text-align: right;\">Database Version: " . get_option("yvts_coursemanager_db_version") . "</p>";
 }
 
@@ -248,6 +328,13 @@ yvts_coursemanager_upgrade();
 
 add_action( 'admin_enqueue_scripts', 'yvts_coursemanager_load_plugin_css' );
 add_action( 'wp_enqueue_scripts', 'yvts_coursemanager_load_plugin_css' );
+add_action('wp_mail_failed', 'log_mailer_errors', 10, 1);
+function log_mailer_errors($mailer){
+  $fn = ABSPATH . '/mail.log'; // say you've got a mail.log file in your server root
+  $fp = fopen($fn, 'a');
+  fputs($fp, date("c")." Mailer Error: " . print_r($mailer->ErrorInfo) . "\n");
+  fclose($fp);
+}
 
 register_activation_hook( __FILE__, 'yvts_coursemanager_install' );
 
