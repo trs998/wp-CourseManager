@@ -46,7 +46,7 @@ class yvts_courseRunning {
     $table_name_courseRunning = $wpdb->prefix . "yvts_courseRunning";
     $table_name_levels = $wpdb->prefix . "yvts_levels";
     $table_name_courses = $wpdb->prefix . "yvts_courses";
-    $sql = $wpdb->prepare( "SELECT `courseRunning_ID`,`$table_name_courseRunning`.`edittime`,`$table_name_courseRunning`.`note`,`starttime`,(UNIX_TIMESTAMP(`starttime`)+7200) as `starttimeU`,`endtime`,(UNIX_TIMESTAMP(`endtime`)+7200) as `endtimeU`, ((UNIX_TIMESTAMP(`endtime`) - UNIX_TIMESTAMP(`starttime`))/86400) AS `days`, `note`,`$table_name_levels`.`name` AS `levelname`,`$table_name_levels`.`levelid` AS `levelid`,`$table_name_levels`.`levelprice` AS `levelprice`, `$table_name_courses`.`name` AS `coursename`, `$table_name_courses`.`description` AS `coursedesc` FROM `$table_name_courseRunning`
+    $sql = $wpdb->prepare( "SELECT `courseRunning_ID`,`$table_name_courseRunning`.`edittime`,`$table_name_courseRunning`.`note`,`starttime`,(UNIX_TIMESTAMP(`starttime`)+7200) as `starttimeU`,`endtime`,(UNIX_TIMESTAMP(`endtime`)+7200) as `endtimeU`, (((UNIX_TIMESTAMP(`endtime`) - UNIX_TIMESTAMP(`starttime`))/86400)+1) AS `days`, `note`,`$table_name_levels`.`name` AS `levelname`,`$table_name_levels`.`levelid` AS `levelid`,`$table_name_levels`.`levelprice` AS `levelprice`, `$table_name_courses`.`name` AS `coursename`, `$table_name_courses`.`description` AS `coursedesc` FROM `$table_name_courseRunning`
     LEFT JOIN `$table_name_levels` ON `$table_name_courseRunning`.`levelid`  = `$table_name_levels`.`levelid` 
     LEFT JOIN  `$table_name_courses` ON `$table_name_courses`.`courseid` = `$table_name_levels`.`courseid`
     WHERE year(`starttime`) = %d ORDER BY `$table_name_courses`.`name`, `$table_name_levels`.`name`, `starttime` ASC", $year);
@@ -62,7 +62,7 @@ class yvts_courseRunning {
     $table_name_courseRunning = $wpdb->prefix . "yvts_courseRunning";
     $table_name_levels = $wpdb->prefix . "yvts_levels";
     $table_name_courses = $wpdb->prefix . "yvts_courses";
-    $sql = $wpdb->prepare( "SELECT `courseRunning_ID`,`$table_name_courseRunning`.`edittime`,`$table_name_courseRunning`.`note`,`starttime`,UNIX_TIMESTAMP(`starttime`) as `starttimeU`,`endtime`,UNIX_TIMESTAMP(`endtime`) as `endtimeU`, ((UNIX_TIMESTAMP(`endtime`) - UNIX_TIMESTAMP(`starttime`))/86400) AS `days`, `note`,`$table_name_levels`.`name` AS `levelname`,`$table_name_levels`.`levelid` AS `levelid`, `$table_name_courses`.`name` AS `coursename`, `$table_name_courses`.`description` AS `coursedesc` FROM `$table_name_courseRunning`
+    $sql = $wpdb->prepare( "SELECT `courseRunning_ID`,`$table_name_courseRunning`.`edittime`,`$table_name_courseRunning`.`note`,`starttime`,UNIX_TIMESTAMP(`starttime`) as `starttimeU`,`endtime`,UNIX_TIMESTAMP(`endtime`) as `endtimeU`, (((UNIX_TIMESTAMP(`endtime`) - UNIX_TIMESTAMP(`starttime`))/86400)+1) AS `days`, `note`,`$table_name_levels`.`name` AS `levelname`,`$table_name_levels`.`levelid` AS `levelid`, `$table_name_courses`.`name` AS `coursename`, `$table_name_courses`.`description` AS `coursedesc` FROM `$table_name_courseRunning`
     LEFT JOIN `$table_name_levels` ON `$table_name_courseRunning`.`levelid`  = `$table_name_levels`.`levelid` 
     LEFT JOIN  `$table_name_courses` ON `$table_name_courses`.`courseid` = `$table_name_levels`.`courseid`
     WHERE `courseRunning_ID` = %d", $courseRunningID);

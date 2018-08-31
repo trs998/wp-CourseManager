@@ -42,7 +42,7 @@ function yvts_coursemanager_admin_schedules() {
 			}*/
 		} else {
 			//add course without dates in correct year
-			
+			if (isset($_GET["year"])) { $newstarttime = $displayYear; }
 			$newstarttimeU = strtotime($newstarttime . "-01-01");
 			$newendtimeU = null;
 			/*
@@ -116,7 +116,7 @@ function yvts_coursemanager_admin_schedules() {
 			$currentLevel = $courses[$i]->levelname;
 			echo "<div class=\"yvts_level\">Level: " . $courses[$i]->levelname . "</div>";
 		}
-		if ($courses[$i]->endtimeU != 0) {
+		if ($courses[$i]->endtimeU > 1000000) {
 			echo "" . date("d-m-Y \(l",$courses[$i]->starttimeU) . " of week " . date("W",$courses[$i]->starttimeU) . ") to "  . date("d-m-Y \(l",$courses[$i]->endtimeU) . " of week " . date("W",$courses[$i]->endtimeU) . ") running for " . round($courses[$i]->days) . " days";
 		} else {
 			echo " No Specific schedule, in " . date("Y",$courses[$i]->starttimeU);
