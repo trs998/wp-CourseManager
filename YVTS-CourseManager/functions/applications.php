@@ -60,7 +60,13 @@ class yvts_application {
 
     }
     
-    public static function deleteApplication() { }
+    public static function deleteApplication($deletedID) { 
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . "yvts_application"; 
+        return $wpdb->delete($table_name,array("applicationid" => $deletedID),array('%d'));
+
+    }
     
     public static function moveupApplication() { }
     

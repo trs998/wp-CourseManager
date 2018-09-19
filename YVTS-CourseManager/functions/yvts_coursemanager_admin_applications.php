@@ -40,6 +40,12 @@ function yvts_coursemanager_admin_applications() {
         }
     }
 
+    if (isset($_GET["yvts_deleteItem"])) {
+        if (yvts_application::deleteApplication($_GET["yvts_deleteItem"])) {
+            echo "<div class=\"yvts_topmessage\">Application form field deleted successfully.</div>";
+        }
+    }
+
     if (isset($_POST["yvts_editfield"])) {
         $yvts_edited_errors = "";
         $yvts_edited_id = $_POST["yvts_editfield"];
@@ -71,12 +77,11 @@ function yvts_coursemanager_admin_applications() {
 
 	echo '<div class="wrap">';
     echo "<h2>List of form fields on the application page.</h2>";
-    echo "<h3>TODO: delete item</h3>";
     
 	if ($yvts_edited_errors != "") {
 		echo "<div style=\"color: red\">$yvts_edited_errors</div>";
     }
-    
+
     echo "<table class=\"yvts_admin_fields\"><tr><th>Position</th><th>Type</th><th>Name</th><th>Min Length</th><th>Note</th><th>Actions</th></tr>";
     for ($i = 0; $i < count($applications); $i++) {
        // var_dump($applications[$i]);
@@ -119,7 +124,7 @@ function yvts_coursemanager_admin_applications() {
         <td><span id=\"yvts_editField_hint_" . $applications[$i]->applicationid . "\"><i>" . stripcslashes($applications[$i]->hint) . "</i></span><input style=\"display: none; width: 20em;\" type=\"text\" id=\"yvts_editField_hint_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_hint_" . $applications[$i]->applicationid . "_e\" value=\"" . stripcslashes($applications[$i]->hint) . "\" /></td>";
         echo "<td><a id=\"yvts_editField_submit_" . $applications[$i]->applicationid . "\" onclick=\"editform" . $applications[$i]->applicationid . "();\">edit</a>
         <input type=\"submit\" style=\"display: none;\" id=\"yvts_editField_submit_" . $applications[$i]->applicationid . "_e\" name=\"yvts_editField_submit_" . $applications[$i]->applicationid . "_e\" value=\"Save\" />
-        (delete)</td>";
+        <a href=\"" . add_query_arg("yvts_deleteItem",$applications[$i]->applicationid) . "\" onclick=\"if (confirm('Really delete this item?')) { window.location.href = '" . add_query_arg("yvts_deleteItem",$applications[$i]->applicationid) . "'; } else { return false; }\">delete</a></td>";
         echo "</tr>";
         echo "</form>";
     }

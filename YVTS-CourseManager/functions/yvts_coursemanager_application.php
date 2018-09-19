@@ -142,8 +142,8 @@ function yvts_coursemanager_application($attributes) {
             $errors = "";
 
             $text = "Course Name: " . $course->coursename . " (" . $course->coursedesc . ")\r\n<br />";
-            $csvoutputtop = "\"Course\",\"Course_Start\",\"Course_End\",";
-            $csvoutputdata = "\"" . $course->coursename . " " . $course->levelname . "\",";
+            $csvoutputtop = "\"Course\",\"Course Description\",\"Course_Start\",\"Course_End\",";
+            $csvoutputdata = "\"" . $course->coursename . " " . $course->levelname . "\"," . $course->coursedesc . " ,";
             if ($course->endtimeU > 0) {
                 $csvoutputdata = $csvoutputdata . "\"" . date("d M Y",$course->starttimeU) . "\",\"" . date("d M Y",$course->endtimeU) . "\",";
                 $text = $text . "Course Start: " . date("d M Y",$course->starttimeU) . "\r\n<br />";
@@ -250,15 +250,22 @@ function yvts_coursemanager_application($attributes) {
             $sendoutput = "";
             if ($emailtarget != false) {
                 $headers = "Content-Type: text/html; charset=UTF-8";
-                //\r\nFrom: YVTS Course Manager &lt;" . $emailfrom . "&gt;";
-                $email_status = wp_mail($emailtarget,$emailsubject,$text,$headers);
+                //$attachmentname = tempnam(get_temp_dir(),"YVTSCoursemanager-" . $course->coursename . "-" . $course->levelname . "-");
+                $attachmentname = tempnam(get_temp_dir(),"YVTSCoursemanager-").".csv";
+                $attachmenthandle = fopen($attachmentname, "w");
+                fwrite($attachmenthandle, $csvoutputtop . "\r\n");
+                fwrite($attachmenthandle, $csvoutputdata);
+                fclose($attachmenthandle);
+
+                $email_status = wp_mail($emailtarget,$emailsubject,$text,$headers,$attachmentname);
                 if ($email_status) {
                     $sendoutput = "Your application was sent to our team, thank you";
                 } else {
                     $errors = "yes";
                     $sendoutput = "Your application could not be sent to our team, sorry";
-                    $sendoutput = $soundoutput . "<br />wp_mail($emailtarget,$emailsubject,$text,$headers);";
+                    //$sendoutput = $soundoutput . "<br />wp_mail($emailtarget,$emailsubject,$text,$headers);";
                 }
+                unlink ( $attachmentname );
             } else {
                 $errors = "yes";
                 $sendoutput = "Email cannot be sent - please add an email target in the settings.";

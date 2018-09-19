@@ -1,6 +1,6 @@
 === YVTS - Course Manager ===
 Contributors: Tristan Scott
-Requires at least: 3.5
+Requires at least: 4.4
 Tested up to: 4.9.8
 
 == Description ==
