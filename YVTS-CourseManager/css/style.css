@@ -21,6 +21,7 @@
 .yvts_input_text > div.yvts_exam_box > input[type=checkbox] { display: block; width: 20px; float: left; }
 .yvts_input_text > .yvts_textblock { display: block; width: 600px; text-align: left; clear: left; }
 .yvts_mandatory > input,textarea { display: block; }
+.yvts_field_textarea { display: inline; }
 .yvts_field_checkbox { display: inline; }
 .yvts_footer { font-size: 80%; margin-top: 100px; }
 .yvts_admin_fields { text-align: left; }

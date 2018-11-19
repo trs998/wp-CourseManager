@@ -198,6 +198,8 @@ function yvts_coursemanager_admin() {
     if (isset($_POST["yvts_email"])) { update_option("yvts_coursemanager_email",$_POST["yvts_email"]); }
     if (isset($_POST["yvts_email_subject"])) { update_option("yvts_coursemanager_email_subject",$_POST["yvts_email_subject"]); }
     if (isset($_POST["yvts_email_from"])) { update_option("yvts_coursemanager_email_from",$_POST["yvts_email_from"]); }
+    if (isset($_POST["yvts_suppressdescriptiononnonscheduled"])) { update_option("yvts_coursemanager_suppress_description",true); } else { update_option("yvts_coursemanager_suppress_description",false); }
+    
 
     echo "<h1>Course Manager Settings</h1>";
     
@@ -293,6 +295,19 @@ function yvts_coursemanager_admin() {
     echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
     <p class=\"description\" id=\"" . $fieldname . "-description\">
     Private key for the Google ReCaptcha.
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_suppressdescriptiononnonscheduled";
+    echo "<tr><th scope=\"row\">
+    Suppress course description on unscheduled courses
+    </th><td>
+    <input name=\"$fieldname\" type=\"checkbox\" id=\"$fieldname\"";
+    $applicationpage = get_option("yvts_coursemanager_suppress_description");
+    if ($applicationpage != false) { echo " checked=\"checked\" "; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    Suppress the display of the course description for applications for courses without scheduled dates. This could be useful if you're using it to describe details of the booking or length, which do not apply to offered versions of this course which do not have fixed lengths, such as re-sits.
     </p>
     </td></tr>";
     

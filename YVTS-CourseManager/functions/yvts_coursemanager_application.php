@@ -29,7 +29,11 @@ function yvts_coursemanager_application($attributes) {
     
         $fields = yvts_application::getApplicationFields();
 			
-        $output = $output . "<div class=\"yvts_course_application_header\">Application form for " . $course->coursename . " " . $course->levelname . " <span class=\"yvts_course_description\"> " . $course->coursedesc . "</span>";
+        $output = $output . "<div class=\"yvts_course_application_header\">Application form for " . $course->coursename . " " . $course->levelname;
+        if (((get_option("yvts_coursemanager_suppress_description") == true) && ($course->endtimeU > 0)) || (get_option("yvts_coursemanager_suppress_description") == false)) {
+            $output = $output . "<span class=\"yvts_course_description\"> " . $course->coursedesc . "</span>";
+        }
+
         if ($course->endtimeU > 0) {
             $output = $output .   "<p>Course running from " . date("d M Y",$course->starttimeU) . " to " . date("d M Y",$course->endtimeU) . "</p>";
         } else {
@@ -222,6 +226,20 @@ function yvts_coursemanager_application($attributes) {
                         }
                     }
                 
+                } else if (($fields[$i]->minlength > 0) && ($fields[$i]->type == "dateselector")) {
+                    //this date field is only requested if the end date unix is non-zero
+                    if (!($course->endtimeU > 0)) {
+                        if ((isset($_POST["yvts_field_" . $fields[$i]->applicationid])) && (strlen($_POST["yvts_field_" . $fields[$i]->applicationid]) >= $fields[$i]->minlength)) {
+                            $text = $text . stripcslashes($fields[$i]->name) . " : " . $_POST["yvts_field_" . $fields[$i]->applicationid] . "\r\n<br />";
+                            $csvoutputtop = $csvoutputtop . "\"" . $fields[$i]->name . "\",";
+                            $csvoutputdata = $csvoutputdata . "\"" . $_POST["yvts_field_" . $fields[$i]->applicationid] . "\",";
+                        } else {
+                            $text = $text . stripcslashes($fields[$i]->name) . " : " . $_POST["yvts_field_" . $fields[$i]->applicationid] . "\r\n<br />";
+                            $csvoutputtop = $csvoutputtop . "\"" . $fields[$i]->name . "\",";
+                            $csvoutputdata = $csvoutputdata . "\"" . $_POST["yvts_field_" . $fields[$i]->applicationid] . "\",";
+                            $errors = $errors . stripcslashes($fields[$i]->name) . ": " . stripcslashes($fields[$i]->hint) . "\n";
+                        }
+                    }
                 } else if (($fields[$i]->minlength > 0) && (($fields[$i]->type == "textbox") || ($fields[$i]->type == "textarea"))) {
                     
                     if ((isset($_POST["yvts_field_" . $fields[$i]->applicationid])) && (strlen($_POST["yvts_field_" . $fields[$i]->applicationid]) >= $fields[$i]->minlength)) {
@@ -295,7 +313,7 @@ function yvts_coursemanager_application($attributes) {
 				$output = $output . "<div class=\"yvts_input_text";
 				if ($fields[$i]->minlength > 0) { $output = $output . " yvts_mandatory"; }
                 $output = $output . "\">";
-                if ($fields[$i]->type != "heading") {
+                if (($fields[$i]->type != "heading") && ($fields[$i]->type != "dateselector")) {
                     $output = $output . "<label for=\"yvts_field_" . $fields[$i]->applicationid . "\">" . stripcslashes($fields[$i]->name) . ":</label>";
                 }
                 if ($fields[$i]->type == "textbox") {
@@ -305,7 +323,7 @@ function yvts_coursemanager_application($attributes) {
                 }
                 $output = $output . " oninput=\"yvts_validate_box('yvts_field_" . $fields[$i]->applicationid . "'," . $fields[$i]->minlength . ");\" />";
                 } elseif ($fields[$i]->type == "textarea") {
-                    $output = $output . "<textarea id=\"yvts_field_" . $fields[$i]->applicationid . "\" name=\"yvts_field_" . $fields[$i]->applicationid . "\" ";
+                    $output = $output . "<div class=\"yvts_field_textarea\">"  . stripcslashes($fields[$i]->hint) . "</div> <textarea id=\"yvts_field_" . $fields[$i]->applicationid . "\" name=\"yvts_field_" . $fields[$i]->applicationid . "\" ";
                     if ($fields[$i]->minlength > 0) { //set hint colours
                         if (strlen($_POST["yvts_field_" . $fields[$i]->applicationid . ""]) >= $fields[$i]->minlength) { $output = $output . " style=\"background-color: #d1ffd2\" "; } else { $output = $output . " style=\"background-color: pink\" "; }
                     }
@@ -333,6 +351,19 @@ function yvts_coursemanager_application($attributes) {
                 } elseif ($fields[$i]->type == "heading") {
                     $output = $output . "<div class=\"yvts_heading\">" . stripcslashes($fields[$i]->name) . "</div>";
                     $output = $output . "<div class=\"yvts_textblock\">" . stripcslashes($fields[$i]->hint) . "</div>";
+                } elseif ($fields[$i]->type == "dateselector") {
+                    if ($course->endtimeU < 1) { //show date selector ONLY if not scheduled already
+                        
+                    $output = $output . "<label for=\"yvts_field_" . $fields[$i]->applicationid . "\">" . stripcslashes($fields[$i]->name) . ":</label>";
+                        $output = $output . "<input type=\"date\" id=\"yvts_field_" . $fields[$i]->applicationid . "\" name=\"yvts_field_" . $fields[$i]->applicationid . "\" value=\"" . $_POST["yvts_field_" . $fields[$i]->applicationid . ""] . "\"";
+                    if ($fields[$i]->minlength > 0) { //set hint colours
+                    if (strlen($_POST["yvts_field_" . $fields[$i]->applicationid . ""]) >= $fields[$i]->minlength) { $output = $output . " style=\"background-color: #d1ffd2\" "; } else { $output = $output . " style=\"background-color: pink\" "; }
+                    }
+                    $output = $output . " oninput=\"yvts_validate_box('yvts_field_" . $fields[$i]->applicationid . "'," . $fields[$i]->minlength . ");\" />";
+                    } //if this is a dated course, ignore this field.
+                    else {
+                        $output = $output . "<input type=\"hidden\" name=\"yvts_field_" . $fields[$i]->applicationid . "\" value=\"xxxxxxxxxx\" />\n";
+                    }
                 } elseif ($fields[$i]->type == "examchoice") {
                     $exams = yvts_exam::getExams($course->levelid);
                     $output = $output . "<div class=\"yvts_exam_box\">";

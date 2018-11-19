@@ -11,6 +11,52 @@ function yvts_coursemanager_admin_schedules() {
 		$displayYear = date("Y");
 	}
 	
+	$courses_levels = yvts_level::getCoursesAndLevels();
+
+	//handle course_edit action via POST
+	if (isset($_POST["course_edit"])) {
+		//yvts_level as level to book against
+		//yvts_scheduled as "Yes" or "No"
+		//yvts_starttime as possible dates
+		//yvts_endtime as possible dates
+		$editError = "";
+		$editingSchedule = $_POST["yvts_course_edit_level"];
+		$editlevel = $_POST["yvts_course_edit_level_$editingSchedule"];
+		$editscheduled = $_POST["yvts_scheduled_edit_$editingSchedule"];
+		$editnote = $_POST["yvts_edit_note_edit_$editingSchedule"];
+
+		if ($editscheduled == "Yes") {
+			//add course with dates in current year
+			$editstarttime = $_POST["yvts_course_edit_starttime_edit_$editingSchedule"];
+			$editendtime = $_POST["yvts_course_edit_endtime_edit_$editingSchedule"];
+			$editstarttimeU = strtotime($editstarttime);
+			$editendtimeU = strtotime($editendtime);
+			if ($editstarttimeU === false) {
+				$editError = $editError . "Start date " . $editstarttime . " not valid.<br />";
+			}
+			if ($editendtimeU === false) {
+				$editError = $editError . "End date " . $editendtime . " not valid.<br />";
+			}
+			if ($editendtimeU < $editstarttimeU) {
+				$editError = $editError . "End date must be later than start date!<br />";
+			}
+			/*if ($addError == "") {
+				echo "<p>New Course<br />Level: $newlevel<br />Scheduled: $newscheduled<br />Start: $newstarttime<br />End: $newendtime<br />Note: $newnote</p>";
+			}*/
+		} else {
+			//add course without dates in correct year
+			if (isset($_GET["year"])) { $editstarttime = $displayYear; }
+			$editstarttimeU = strtotime($editstarttime . "-01-01");
+			$editendtimeU = null;
+			/*
+			echo "<p>New Course<br />Level: $newlevel<br />Scheduled: $newscheduled<br />Start: $newstarttime<br />Note: $newnote</p>";
+			*/
+		}
+		if ($editError == "") {
+			$editResult = yvts_courseRunning::editCourse($editingSchedule,$editlevel, $editstarttimeU, $editendtimeU, $editnote);
+		}
+	}
+
 	//handle course_add action via POST
 	if (isset($_POST["course_add"])) {
 		//yvts_level as level to book against
@@ -88,7 +134,6 @@ function yvts_coursemanager_admin_schedules() {
 	}
 
 	$courses = yvts_courseRunning::getCoursesRunning($displayYear);
-	echo '<p>TODO: Edit displayed courses scheduled</p>';
 	/*	
 	courseRunning_ID
 	edittime
@@ -102,29 +147,96 @@ function yvts_coursemanager_admin_schedules() {
 	*/
 
 	echo "<h1>Courses Running this year</h1>";
+
+	if (isset($editResult)) {
+		echo "<div  style=\"color: green\">";
+		if ($editResult == 1) {
+			echo "Saved changed to $editResult course.";
+		} else {
+			echo "Saved changed: $editResult.";
+		}
+		echo "</div>";
+	}
+	if ($editError != "") {
+		echo "<div style=\"color: red\">$editError</div>";
+	}
 	$currentCourse = "---------";
 	$currentLevel = "---------";
 	for($i = 0; $i < count($courses); $i++) {
-		echo "<p><form method=\"post\">";
-		echo "<input type=\"hidden\" name=\"courseEdit\" value=\"" . $courses[$i]->courseRunning_ID . "\" />";
-		echo "<div class=\"courseEntry\">";
+		echo "<p>";
+		echo "<div>";
+		// <form method=\"post\" id=\"displayForm$i\">
+		echo "<div id=\"displayForm$i\">";
 		if ($courses[$i]->coursename != $currentCourse) {
 			$currentCourse = $courses[$i]->coursename;
-			echo "<div class=\"yvts_course\"><h2>" . $courses[$i]->coursename . " <span class=\"yvts_course_description\">" . $courses[$i]->coursedesc . "</span> </h2></div>";
+			echo "<div class=\"yvts_course\"><h2>" . $courses[$i]->coursename . " <span class=\"yvts_course_description\">" . $courses[$i]->coursedesc . "</span> </h2></div>\n";
 		}
 		if ($courses[$i]->levelname != $currentLevel) {
 			$currentLevel = $courses[$i]->levelname;
-			echo "<div class=\"yvts_level\">Level: " . $courses[$i]->levelname . "</div>";
+			echo "<div class=\"yvts_level\">Level: " . $courses[$i]->levelname . "</div>\n";
 		}
 		if ($courses[$i]->endtimeU > 1000000) {
 			echo "" . date("d-m-Y \(l",$courses[$i]->starttimeU) . " of week " . date("W",$courses[$i]->starttimeU) . ") to "  . date("d-m-Y \(l",$courses[$i]->endtimeU) . " of week " . date("W",$courses[$i]->endtimeU) . ") running for " . round($courses[$i]->days) . " days";
 		} else {
 			echo " No Specific schedule, in " . date("Y",$courses[$i]->starttimeU);
 		}
-		echo " (edit) </form>";
-		echo " <form method=\"post\" style=\"display: inline\"><input type=\"hidden\" name=\"deleteCourseRunning\" value=\"" . $courses[$i]->courseRunning_ID . "\" /><input type=\"submit\" class=\"yvts_delete_button\" name=\"Delete_Level\" value=\"Delete Booked Course\" onclick=\"return confirm('Delete this course booking?');\" /></form>";
-		if ($courses[$i]->note != null) { echo "<br /><span class=\"yvts_coursenote\">" . $courses[$i]->note . "</span>"; }
+		
+
+		echo "\n <form method=\"post\" style=\"display: inline\"><input type=\"hidden\" name=\"deleteCourseRunning\" value=\"" . $courses[$i]->courseRunning_ID . "\" /><input type=\"submit\" class=\"yvts_delete_button\" name=\"Delete_Level\" value=\"Delete Booked Course\" onclick=\"return confirm('Delete this course booking?');\" /></form>\n";
+
+		if ($courses[$i]->note != null) { echo "<br /><span class=\"yvts_coursenote\">" . $courses[$i]->note . "</span>\n"; }
+
+		echo "\n <a href=\"#\" onclick=\"document.getElementById('displayForm$i').style.display='none';document.getElementById('editForm$i').style.display='block';return false;\">(edit)</a>\n";
+		//echo "</form>";
 		echo "</div>";
+		
+		echo "
+		<div id=\"editForm$i\" style=\"display:none;\">
+		<form method=\"post\">
+		<input type=\"hidden\" name=\"yvts_course_edit_level\" value=\"" . $courses[$i]->courseRunning_ID . "\" />
+		<label for=\"yvts_level_edit$i\">Course and level: </label>
+		<select id=\"yvts_level_edit$i\" name=\"yvts_course_edit_level_" . $courses[$i]->courseRunning_ID . "\">
+		";
+		for ($j = 0; $j < count($courses_levels); $j++) {
+			echo "<option value=\"" . $courses_levels[$j]->levelid . "\"";
+			if ($courses_levels[$j]->levelid == $courses[$i]->levelid) { echo " selected=\"selected\""; }
+			echo ">" . $courses_levels[$j]->coursename . " - " . $courses_levels[$j]->levelname . "</option>";
+		}
+		echo " 
+		</select><br />
+		<label for=\"yvts_scheduled_edit$i\">Scheduled Time?</label>";
+
+		if ($courses[$i]->endtimeU > 1000000) {
+			//display date selector version
+			echo "<input type=\"radio\" id=\"yvts_scheduled_edit$i\" name=\"yvts_scheduled_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"Yes\" onclick=\"document.getElementById('yvts_edittcourse_dates$i').style.display = 'inline';\" checked=\"checked\" />Yes
+			<input type=\"radio\" id=\"yvts_scheduled2_edit$i\" name=\"yvts_scheduled_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"No\" onclick=\"document.getElementById('yvts_edittcourse_dates$i').style.display = 'none';\" />No (Booked on demand)<br />
+			<span id=\"yvts_edittcourse_dates$i\">
+			<label for=\"yvts_starttime_edit$i\">Start Time: </label><input id=\"yvts_starttime_edit$i\" type=\"date\" name=\"yvts_course_edit_starttime_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"";
+			echo date("Y-m-d",$courses[$i]->starttimeU);
+			echo "\" /><br />
+			<label for=\"yvts_endtime_edit$i\">End Time: </label><input id=\"yvts_endtime_edit$i\" type=\"date\" name=\"yvts_course_edit_endtime_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"";
+			echo date("Y-m-d",$courses[$i]->endtimeU);
+			echo "\" /><br />
+			</span>";
+		} else {
+				//display year-only version
+				echo "<input type=\"radio\" id=\"yvts_scheduled_edit$i\" name=\"yvts_scheduled_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"Yes\" onclick=\"document.getElementById('yvts_edittcourse_dates$i').style.display = 'inline';\" />Yes
+			<input type=\"radio\" id=\"yvts_scheduled2_edit$i\" name=\"yvts_scheduled_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"No\" onclick=\"document.getElementById('yvts_edittcourse_dates$i').style.display = 'none';\" checked=\"checked\" />No (Booked on demand)<br />
+			<span id=\"yvts_edittcourse_dates$i\" style=\"display:none\" >
+			<label for=\"yvts_starttime_edit$i\">Start Time: </label><input id=\"yvts_starttime_edit$i\" type=\"date\" name=\"yvts_course_edit_starttime_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"";
+			echo date("Y-m-d",$courses[$i]->starttimeU);
+			echo "\" /><br />
+			<label for=\"yvts_endtime_edit$i\">End Time: </label><input id=\"yvts_endtime_edit$i\" type=\"date\" name=\"yvts_course_edit_endtime_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"";
+			echo date("Y-m-d",$courses[$i]->endtimeU);
+			echo "\" /><br />
+			</span>";
+		}
+		echo "<label for=\"yvts_new_note_edit$i\">Note:</label><input id=\"yvts_new_note_edit$i\" name=\"yvts_edit_note_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"";
+		echo $courses[$i]->note;
+		echo "\" /><br />
+		<input type=\"submit\" name=\"course_edit\" value=\"Save Edited Course\" />
+		</form></div>";
+		//echo "</div>";
 		echo "</p>";
 	}
 
@@ -135,7 +247,6 @@ function yvts_coursemanager_admin_schedules() {
 	// start time (tick for no times)
 	// end time (tick for no times)
 	
-	$courses_levels = yvts_level::getCoursesAndLevels();
 
 	echo "
 	<div class=\"yvts_course_new\">

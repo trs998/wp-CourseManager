@@ -4,16 +4,27 @@ defined( 'ABSPATH' ) or die( 'No Direct Access' );
 
 class yvts_courseRunning {
 
-  static function addCourse($newlevel, $newstarttimeU, $newendtimeU, $newnote) {
-    global $wpdb;
-    $table_name = $wpdb->prefix . "yvts_courseRunning";
-    $result = $wpdb->insert($table_name,array("levelid" => $newlevel, "starttime" => date('Y-m-d', $newstarttimeU), "endtime" => date('Y-m-d', $newendtimeU), "note" => $newnote),array('%d','%s','%s','%s'));
-    if ($result === 1) {
-        return true;
-    } else {
-        return "Error inserting new level: " . $wpdb->last_error;
-    }
-  }
+    static function addCourse($newlevel, $newstarttimeU, $newendtimeU, $newnote) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . "yvts_courseRunning";
+        $result = $wpdb->insert($table_name,array("levelid" => $newlevel, "starttime" => date('Y-m-d', $newstarttimeU), "endtime" => date('Y-m-d', $newendtimeU), "note" => $newnote),array('%d','%s','%s','%s'));
+        if ($result === 1) {
+            return true;
+        } else {
+            return "Error inserting new level: " . $wpdb->last_error;
+        }
+      }
+
+    static function editCourse($editLevelID, $editlevel, $editstarttimeU, $editendtimeU, $editnote) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . "yvts_courseRunning";
+        $result = $wpdb->update($table_name,array("levelid" => $editlevel, "starttime" => date('Y-m-d', $editstarttimeU), "endtime" => date('Y-m-d', $editendtimeU), "note" => $editnote),array('courseRunning_ID'=>$editLevelID),array('%d','%s','%s','%s'),array('%d'));
+        if ($result === 1) {
+            return true;
+        } else {
+            return "Error updating level $editLevelID: " . $wpdb->last_error;
+        }
+      }
 
   static function getYears() {
     global $wpdb;
