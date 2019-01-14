@@ -195,6 +195,8 @@ function yvts_coursemanager_admin() {
     if (isset($_POST["yvts_schedulepage"])) { update_option("yvts_coursemanager_schedule_page",$_POST["yvts_schedulepage"]); }
     if (isset($_POST["yvts_captchapublic"])) { update_option("yvts_coursemanager_captcha_public",$_POST["yvts_captchapublic"]); }
     if (isset($_POST["yvts_captchaprivate"])) { update_option("yvts_coursemanager_captcha_private",$_POST["yvts_captchaprivate"]); }
+    if (isset($_POST["yvts_text_scheduled"])) { update_option("yvts_text_scheduled",$_POST["yvts_text_scheduled"]); }
+    if (isset($_POST["yvts_text_unscheduled"])) { update_option("yvts_text_unscheduled",$_POST["yvts_text_unscheduled"]); }
     if (isset($_POST["yvts_email"])) { update_option("yvts_coursemanager_email",$_POST["yvts_email"]); }
     if (isset($_POST["yvts_email_subject"])) { update_option("yvts_coursemanager_email_subject",$_POST["yvts_email_subject"]); }
     if (isset($_POST["yvts_email_from"])) { update_option("yvts_coursemanager_email_from",$_POST["yvts_email_from"]); }
@@ -295,6 +297,32 @@ function yvts_coursemanager_admin() {
     echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
     <p class=\"description\" id=\"" . $fieldname . "-description\">
     Private key for the Google ReCaptcha.
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_text_scheduled";
+    echo "<tr><th scope=\"row\">
+    Text for applying to scheduled courses
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_text_scheduled");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    This is the link to apply for a scheduled course. It defaults to \"Apply for this course\".
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_text_unscheduled";
+    echo "<tr><th scope=\"row\">
+    Text for applying to unscheduled courses
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_text_unscheduled");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    This is the link to apply for an unscheduled course. It defaults to \"Apply for this course\".
     </p>
     </td></tr>";
     

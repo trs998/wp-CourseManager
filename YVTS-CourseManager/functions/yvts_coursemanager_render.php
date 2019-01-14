@@ -7,6 +7,14 @@ function yvts_coursemanager_render($attributes) {
     if ((isset($attributes["year"])) && ($attributes["year"] > 1970) && ($attributes["year"] < 2050)) {
         $targetYear = $attributes["year"];
     }
+	 
+	$text_default ="Apply for this course";
+	 $yvts_text_scheduled=get_option("yvts_text_scheduled");
+    if ($yvts_text_scheduled == false) { $yvts_text_scheduled = $text_default; };
+	 $yvts_text_unscheduled=get_option("yvts_text_unscheduled");
+    if ($yvts_text_unscheduled == false) { $yvts_text_unscheduled = $text_default; };
+	 
+    $applicationpage = get_option("yvts_coursemanager_application_page");
     
     $courses = yvts_courseRunning::getCoursesRunning($targetYear);
     
@@ -42,9 +50,8 @@ function yvts_coursemanager_render($attributes) {
 		if ($courses[$i]->endtimeU > 1000000) {
             $schedule = $schedule .  "<tr><td>";
             $schedule = $schedule .  $courses[$i]->note;
-            $applicationpage = get_option("yvts_coursemanager_application_page");
             if (($applicationpage != false) && ($courses[$i]->starttimeU > date("U"))) {
-                $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">Apply for this course.</a>";
+                $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">" . $yvts_text_scheduled . ".</a>";
             };
             $schedule = $schedule .  "</td><td>";
             $schedule = $schedule .  date("d M",$courses[$i]->starttimeU) . " to " . date("d M",$courses[$i]->endtimeU);
@@ -53,10 +60,10 @@ function yvts_coursemanager_render($attributes) {
 		} else {
             $schedule = $schedule .  "<tr><td colspan=\"2\">Level " . $courses[$i]->levelname . " are scheduled on demand ";
             if (($applicationpage != false) && (date("Y",$courses[$i]->starttimeU) >= date("Y"))) {
-                $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">Apply for this course.</a>";
-            } else {
-                $schedule = $schedule .  "Year of course: " . date("Y",$courses[$i]->starttimeU) . " -  Year of now: " . date("Y");
-            }
+                $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">" . $yvts_text_unscheduled . ".</a>";
+            }/* else {
+                $schedule = $schedule .  "Year of course: " . date("Y",$courses[$i]->starttimeU) . " -  Year of now: " . date("Y") . " and  application page is " . $applicationpage;
+            }*/
             $schedule = $schedule .  "</td></tr>";
         }
     }
