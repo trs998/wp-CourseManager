@@ -13,7 +13,7 @@ include "functions/applications.php";
 
 function yvts_coursemanager_install () {
 
-    add_option( "yvts_coursemanager_db_version", "6" );
+    add_option( "yvts_coursemanager_db_version", "7" );
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -37,6 +37,7 @@ function yvts_coursemanager_install () {
         levelid mediumint(9) NOT NULL AUTO_INCREMENT,
         courseid mediumint(9) NOT NULL,
         levelprice float DEFAULT 0,
+        description text NULL,
         name tinytext NOT NULL,
         PRIMARY KEY levelid (levelid)
     ) $charset_collate;";
@@ -164,6 +165,25 @@ function yvts_coursemanager_upgrade_db_5_1_to_6() {
     return "6";
 }
 
+function yvts_coursemanager_upgrade_db_6_to_7() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_levels"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        levelid mediumint(9) NOT NULL AUTO_INCREMENT,
+        courseid mediumint(9) NOT NULL,
+        levelprice float DEFAULT 0,
+        description text NULL,
+        name tinytext NOT NULL,
+        PRIMARY KEY levelid (levelid)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "6";
+}
+
 function yvts_coursemanager_upgrade() {
     //from old to new DB formats
     global $wpdb;
@@ -173,6 +193,7 @@ function yvts_coursemanager_upgrade() {
     if ($DBVersion == "4.0") { $DBVersion = yvts_coursemanager_upgrade_db_4_to_5(); }
     if ($DBVersion == "5.0") { $DBVersion = yvts_coursemanager_upgrade_db_5_to_5_1(); }
     if ($DBVersion == "5.1") { $DBVersion = yvts_coursemanager_upgrade_db_5_1_to_6(); }
+    if ($DBVersion == "6") { $DBVersion = yvts_coursemanager_upgrade_db_6_to_7(); }
     if ($DBVersion != get_option("yvts_coursemanager_db_version")) {
         update_option( "yvts_coursemanager_db_version", "$DBVersion" );
     }

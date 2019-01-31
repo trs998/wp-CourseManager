@@ -7,6 +7,7 @@
 .yvts_coursenote { font-style: italic; margin-left: 30px; }
 .yvts_course_application_header { font-weight: bold; font-size: 110%; }
 .yvts_level { margin-left: 60px; }
+.yvts_level_description { font-style: italic; }
 .yvts_exam { margin-left: 100px; }
 .yvts_delete_button { padding: 1px; }
 .yvts_course_edit { font-weight: normal; }

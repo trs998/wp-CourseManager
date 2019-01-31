@@ -50,6 +50,8 @@ function yvts_coursemanager_render($attributes) {
 		if ($courses[$i]->endtimeU > 1000000) {
             $schedule = $schedule .  "<tr><td>";
             $schedule = $schedule .  $courses[$i]->note;
+            if (strlen($courses[$i]->leveldesc) > 0) { $schedule = $schedule . " <span class=\"yvts_level_description\">" . $courses[$i]->leveldesc . "</span>"; }
+        
             if (($applicationpage != false) && ($courses[$i]->starttimeU > date("U"))) {
                 $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">" . $yvts_text_scheduled . ".</a>";
             };
@@ -58,7 +60,9 @@ function yvts_coursemanager_render($attributes) {
             $schedule = $schedule .  "</td></tr>";
             // date("d-m-Y \(l",$courses[$i]->starttimeU) . " of week " . date("W",$courses[$i]->starttimeU) . ") to "  . date("d-m-Y \(l",$courses[$i]->endtimeU) . " of week " . date("W",$courses[$i]->endtimeU) . ") running for " . round($courses[$i]->days) . " days";
 		} else {
-            $schedule = $schedule .  "<tr><td colspan=\"2\">Level " . $courses[$i]->levelname . " are scheduled on demand ";
+            $schedule = $schedule .  "<tr><td colspan=\"2\">Level " . $courses[$i]->levelname;
+            if (strlen($courses[$i]->leveldesc) > 0) { $schedule = $schedule . " <span class=\"yvts_level_description\">" . $courses[$i]->leveldesc . "</span>"; }
+            $schedule = $schedule . " are scheduled on demand ";
             if (($applicationpage != false) && (date("Y",$courses[$i]->starttimeU) >= date("Y"))) {
                 $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">" . $yvts_text_unscheduled . ".</a>";
             }/* else {
