@@ -2,7 +2,7 @@
 .yvts_thisone { font-weight: 800 !important; }
 .yvts_course { margin-left: 0px; }
 .yvts_course_description { font-size: 70%; font-weight: normal; }
-.yvts_courseRunning th { padding-top: 0.75em; }
+.yvts_courseRunning th { padding-top: 2.75em; width: 100%; }
 .yvts_courseRunning th:last-child { min-width: 9em; }
 .yvts_coursenote { font-style: italic; margin-left: 30px; }
 .yvts_course_application_header { font-weight: bold; font-size: 110%; }
