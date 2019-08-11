@@ -55,7 +55,7 @@ class yvts_level {
         $table_name_courses = $wpdb->prefix . "yvts_courses"; 
         $table_name_levels = $wpdb->prefix . "yvts_levels"; 
         
-        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`levelname` as `levelname`, `$table_name_levels`.`levelid` AS `levelid`,`$table_name_levels`.`levelprice` AS `levelprice`, `$table_name_courses`.`name` as `coursename`, `$table_name_courses`.`description` AS `coursedesc` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` WHERE `$table_name_levels`.`levelid` = $levelID");
+        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`levelname` as `levelname`, `$table_name_levels`.`levelid` AS `levelid`,`$table_name_levels`.`levelprice` AS `levelprice`, `$table_name_courses`.`name` as `coursename`, `$table_name_courses`.`description` AS `coursedesc`, `$table_name_levels`.`description` AS `leveldesc` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` WHERE `$table_name_levels`.`levelid` = $levelID");
         
         if (count($result) == 1) {
             return $result[0];
@@ -64,7 +64,7 @@ class yvts_level {
         }
     }
     
-    public static function createLevel($courseID, $newlevelname, $newlevelprice = 0) {
+    public static function createLevel($courseID, $newlevelname, $newleveldescription, $newlevelprice = 0) {
         global $wpdb;
 
         //check does not exist
@@ -81,7 +81,7 @@ class yvts_level {
             $result = $wpdb->get_results($sql);
             if (count($result) == 0) {
                 //proceed to insert
-                $result = $wpdb->insert($table_name_levels,array("name" => $newlevelname, "courseid" => $courseID, "levelprice" => $newlevelprice),array('%s','%d', '%f'));
+                $result = $wpdb->insert($table_name_levels,array("name" => $newlevelname,"description" => $newleveldescription, "courseid" => $courseID, "levelprice" => $newlevelprice),array('%s','%s','%d', '%f'));
                 if ($result === 1) {
                     return true;
                 } else {
@@ -95,7 +95,7 @@ class yvts_level {
         }
     }
     
-    public static function updateLevel($levelID, $newname, $newprice) {
+    public static function updateLevel($levelID, $newname, $newdescription, $newprice) {
         global $wpdb;
         $table_name = $wpdb->prefix . "yvts_levels"; 
 
@@ -106,7 +106,7 @@ class yvts_level {
             $result = $wpdb->get_results($sql);
             if (count($result) == 0) {
                 //proceed to update
-                $result = $wpdb->update($table_name,array("name" => $newname, "levelprice" => $newprice),array("levelid" => $levelID),array('%s'),array('%d','%f'));
+                $result = $wpdb->update($table_name,array("name" => $newname, "description" => $newdescription, "levelprice" => $newprice),array("levelid" => $levelID),array('%s', '%s', '%d'),array('%d'));
                 if ($result === 1) {
                     return true;
                 } else {

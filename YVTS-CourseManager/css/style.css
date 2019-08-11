@@ -2,16 +2,17 @@
 .yvts_thisone { font-weight: 800 !important; }
 .yvts_course { margin-left: 0px; }
 .yvts_course_description { font-size: 70%; font-weight: normal; }
-.yvts_courseRunning th { padding-top: 0.75em; }
+.yvts_courseRunning th { padding-top: 0.75em; width: 100%; font-family: helvetica, sans-serif; }
 .yvts_courseRunning th:last-child { min-width: 9em; }
 .yvts_coursenote { font-style: italic; margin-left: 30px; }
-.yvts_course_application_header { font-weight: bold; font-size: 110%; }
+.yvts_course_application_header { font-weight: bold; font-size: 110%;  font-family: helvetica, sans-serif; }
 .yvts_level { margin-left: 60px; }
+.yvts_level_description { font-style: italic; }
 .yvts_exam { margin-left: 100px; }
 .yvts_delete_button { padding: 1px; }
 .yvts_course_edit { font-weight: normal; }
 .yvts_input_text { display: block; clear: both; margin-top: 20px; }
-.yvts_input_text > label { clear: left; float: left; display: block; width: 300px; text-align: right; }
+.yvts_input_text > label { clear: left; float: left; display: block; width: 300px; text-align: right; font-family: helvetica, sans-serif; }
 .yvts_exam_line > label.yvts_examlabel { display: inline; float: none; clear: none; text-align: left; }
 .yvts_input_text > .yvts_heading { clear: left; float: left; display: block; width: 600px; text-align: left; font-weight: 800; font-size: 110%; }
 .yvts_input_text > input,textarea,select { display: block; width: 300px; }

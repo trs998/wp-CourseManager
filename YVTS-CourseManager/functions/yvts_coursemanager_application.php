@@ -154,8 +154,9 @@ function yvts_coursemanager_application($attributes) {
             $errors = "";
 
             $text = "Course Name: " . $course->coursename . " (" . $course->coursedesc . ")\r\n<br />";
-            $csvoutputtop = "\"Course\",\"Course Description\",\"Course_Start\",\"Course_End\",";
-            $csvoutputdata = "\"" . $course->coursename . " " . $course->levelname . "\"," . $course->coursedesc . " ,";
+            $text = $text . "Level Name: " . $course->levelname . " (" . $course->leveldesc . ")\r\n<br />";
+            $csvoutputtop = "\"Course\",\"Level\",\"Course Description\",\"Level Description\",\"Course_Start\",\"Course_End\",";
+            $csvoutputdata = "\"" . $course->coursename . "\",\"" . $course->levelname . "\",\"" . $course->coursedesc . "\",\"" . $course->leveldesc . "\",";
             if ($course->endtimeU > 0) {
                 $csvoutputdata = $csvoutputdata . "\"" . date("d M Y",$course->starttimeU) . "\",\"" . date("d M Y",$course->endtimeU) . "\",";
                 $text = $text . "Course Start: " . date("d M Y",$course->starttimeU) . "\r\n<br />";
