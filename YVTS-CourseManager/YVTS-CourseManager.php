@@ -51,6 +51,7 @@ function yvts_coursemanager_install () {
       `levelid` mediumint(9) NOT NULL,
       `starttime` date,
       `endtime` date,
+      `fullybooked` tinyint(1) DEFAULT 0,
       `note` text,
         PRIMARY KEY courseRunning_ID (courseRunning_ID)
     ) $charset_collate;";
@@ -181,7 +182,28 @@ function yvts_coursemanager_upgrade_db_6_to_7() {
     
     dbDelta( $sql );
 
-    return "6";
+    return "7";
+}
+
+function yvts_coursemanager_upgrade_db_7_to_7_1() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_courseRunning"; 
+    
+    $sql = "CREATE TABLE $table_name (
+      `courseRunning_ID` mediumint(9) unsigned NOT NULL AUTO_INCREMENT,
+      `edittime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `levelid` mediumint(9) NOT NULL,
+      `starttime` date,
+      `endtime` date,
+      `fullybooked` tinyint(1) DEFAULT 0,
+      `note` text,
+        PRIMARY KEY courseRunning_ID (courseRunning_ID)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "7.1";
 }
 
 function yvts_coursemanager_upgrade() {
@@ -194,6 +216,7 @@ function yvts_coursemanager_upgrade() {
     if ($DBVersion == "5.0") { $DBVersion = yvts_coursemanager_upgrade_db_5_to_5_1(); }
     if ($DBVersion == "5.1") { $DBVersion = yvts_coursemanager_upgrade_db_5_1_to_6(); }
     if ($DBVersion == "6") { $DBVersion = yvts_coursemanager_upgrade_db_6_to_7(); }
+    if ($DBVersion == "7") { $DBVersion = yvts_coursemanager_upgrade_db_7_to_7_1(); }
     if ($DBVersion != get_option("yvts_coursemanager_db_version")) {
         update_option( "yvts_coursemanager_db_version", "$DBVersion" );
     }
@@ -218,6 +241,7 @@ function yvts_coursemanager_admin() {
     if (isset($_POST["yvts_captchaprivate"])) { update_option("yvts_coursemanager_captcha_private",$_POST["yvts_captchaprivate"]); }
     if (isset($_POST["yvts_text_scheduled"])) { update_option("yvts_text_scheduled",$_POST["yvts_text_scheduled"]); }
     if (isset($_POST["yvts_text_unscheduled"])) { update_option("yvts_text_unscheduled",$_POST["yvts_text_unscheduled"]); }
+    if (isset($_POST["yvts_text_fullybooked"])) { update_option("yvts_text_fullybooked",$_POST["yvts_text_fullybooked"]); }
     if (isset($_POST["yvts_email"])) { update_option("yvts_coursemanager_email",$_POST["yvts_email"]); }
     if (isset($_POST["yvts_email_subject"])) { update_option("yvts_coursemanager_email_subject",$_POST["yvts_email_subject"]); }
     if (isset($_POST["yvts_email_from"])) { update_option("yvts_coursemanager_email_from",$_POST["yvts_email_from"]); }
@@ -344,6 +368,19 @@ function yvts_coursemanager_admin() {
     echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
     <p class=\"description\" id=\"" . $fieldname . "-description\">
     This is the link to apply for an unscheduled course. It defaults to \"Apply for this course\".
+    </p>
+    </td></tr>";
+    
+    $fieldname = "yvts_text_fullybooked";
+    echo "<tr><th scope=\"row\">
+    Text for applying to fully booked courses (will not be a clickable link)
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_text_fullybooked");
+    if ($applicationpage != false) { echo "$applicationpage"; };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    This is the text used as a replacement for the link to apply for an scheduled course. It defaults to \"Apply for this course\" which is not clickable.
     </p>
     </td></tr>";
     

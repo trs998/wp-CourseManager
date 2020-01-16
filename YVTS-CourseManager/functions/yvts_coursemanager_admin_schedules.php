@@ -109,6 +109,26 @@ function yvts_coursemanager_admin_schedules() {
 			echo "<span style=\"color: red\">$deleteresult</span>";
 		}
 	}
+	
+	if (isset($_GET["markFullyBooked"])) {
+		$markCourseID = $_GET["markFullyBooked"];
+		$esult = yvts_courseRunning::setFullyBooked($markCourseID,true);
+		if ($esult === true) {
+			echo "<span style=\"color: green\">Marked course as fully booked successfully</span>";
+		} else {
+			echo "<span style=\"color: red\">$esult</span>";
+		}
+	}
+	
+	if (isset($_GET["unmarkFullyBooked"])) {
+		$markCourseID = $_GET["unmarkFullyBooked"];
+		$esult = yvts_courseRunning::setFullyBooked($markCourseID,false);
+		if ($esult === true) {
+			echo "<span style=\"color: green\">Unmrked course as fully booked successfully</span>";
+		} else {
+			echo "<span style=\"color: red\">$esult</span>";
+		}
+	}
 
 	echo '<div class="wrap">';
 	echo "<h2>List of courses scheduled.</h2>";
@@ -181,6 +201,11 @@ function yvts_coursemanager_admin_schedules() {
 			echo " No Specific schedule, in " . date("Y",$courses[$i]->starttimeU);
 		}
 		
+		if ($courses[$i]->fullybooked) { 
+			echo " - (fully booked) <a href=\"" . add_query_arg(array("unmarkFullyBooked" => $courses[$i]->courseRunning_ID),$myURL) . "\">(unmark fully booked)</a>";
+		} else {
+			echo " - available for booking <a href=\"" . add_query_arg(array("markFullyBooked" => $courses[$i]->courseRunning_ID),$myURL) . "\">(mark fully booked)</a>";
+		}
 
 		echo "\n <form method=\"post\" style=\"display: inline\"><input type=\"hidden\" name=\"deleteCourseRunning\" value=\"" . $courses[$i]->courseRunning_ID . "\" /><input type=\"submit\" class=\"yvts_delete_button\" name=\"Delete_Level\" value=\"Delete Booked Course\" onclick=\"return confirm('Delete this course booking?');\" /></form>\n";
 

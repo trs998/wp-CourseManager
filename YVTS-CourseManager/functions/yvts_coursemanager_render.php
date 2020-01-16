@@ -13,6 +13,8 @@ function yvts_coursemanager_render($attributes) {
     if ($yvts_text_scheduled == false) { $yvts_text_scheduled = $text_default; };
 	 $yvts_text_unscheduled=get_option("yvts_text_unscheduled");
     if ($yvts_text_unscheduled == false) { $yvts_text_unscheduled = $text_default; };
+	 $yvts_text_fullybooked=get_option("yvts_text_fullybooked");
+    if ($yvts_text_fullybooked == false) { $yvts_text_fullybooked = $text_default; };
 	 
     $applicationpage = get_option("yvts_coursemanager_application_page");
     
@@ -77,7 +79,11 @@ function yvts_coursemanager_render($attributes) {
             if (strlen($courses[$i]->leveldesc) > 0) { $schedule = $schedule . " <span class=\"yvts_level_description\">" . $courses[$i]->leveldesc . "</span>"; }
         
             if (($applicationpage != false) && ($courses[$i]->starttimeU > date("U"))) {
-                $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">" . $yvts_text_scheduled . ".</a>";
+					if ($courses[$i]->fullybooked) {
+						 $schedule = $schedule .  " " . $yvts_text_fullybooked . " ";
+					} else {
+						$schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">" . $yvts_text_scheduled . ".</a>";
+					}
             };
             $schedule = $schedule .  "</td><td>";
             $schedule = $schedule .  date("d M",$courses[$i]->starttimeU) . " to " . date("d M",$courses[$i]->endtimeU);
