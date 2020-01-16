@@ -44,7 +44,7 @@ function yvts_coursemanager_render($attributes) {
            // if ($currentLevel != "-") { $schedule = $schedule .  "</table>"; }
             $currentLevel = $courses[$i]->levelname;
 			$currentCourse = $courses[$i]->coursename;
-            $tableheading = $tableheading .  "<tr><th><a onclick=\"document.getElementById('yvts_courseRunning-$i').style.display='block';document.getElementById('yvts_courseRunning-$i-short').style.display='none'; return false; \" href=\"#\"> " . $courses[$i]->coursename . " " . $courses[$i]->levelname . " <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></a></th><th>";
+            $tableheading = $tableheading .  "<tr><th><a onclick=\"document.getElementById('yvts_courseRunning-$i').style.display='block';document.getElementById('yvts_courseRunning-$i-short').style.display='none'; return false; \" href=\"#\"> " . $courses[$i]->coursename . "  <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></a></th><th>";
            /* if ($courses[$i]->levelprice != 0) {
                 $tableheading = $tableheading .  "&pound;" . number_format($courses[$i]->levelprice,0,".",",");
             } else {
@@ -61,7 +61,7 @@ function yvts_coursemanager_render($attributes) {
            // if ($currentLevel != "-") { $schedule = $schedule .  "</table>"; }
             $currentLevel = $courses[$i]->levelname;
 			$currentCourse = $courses[$i]->coursename;
-            $tableheading = $tableheading .  "<tr><th>" . $courses[$i]->coursename . " " . $courses[$i]->levelname . " <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></th><th>";
+            $tableheading = $tableheading .  "<tr><th>" . $courses[$i]->coursename . " <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></th><th>";
             if ($courses[$i]->levelprice != 0) {
                 $tableheading = $tableheading .  "&pound;" . number_format($courses[$i]->levelprice,0,".",",");
             } else {
