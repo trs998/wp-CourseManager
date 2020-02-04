@@ -103,7 +103,7 @@ function yvts_coursemanager_application($attributes) {
                         $output = $output . "
                         error = error + \"\\n\\n\";
                     }\n";
-                } else if (($fields[$i]->minlength > 0) && ($fields[$i]->type == "dropdown")) {
+                } else if (($fields[$i]->minlength > 0) && (($fields[$i]->type == "dropdown") || ($fields[$i]->type == "leveldropdown"))) {
                     $output = $output . "if (document.getElementById(\"yvts_field_" . $fields[$i]->applicationid . "\").value.length < " . $fields[$i]->minlength . ") {
 					    error = error + \"" . $fields[$i]->name . ": \";
                         ";
@@ -210,7 +210,7 @@ function yvts_coursemanager_application($attributes) {
                     $text = $text . stripcslashes($fields[$i]->name) . " : " . $examsticked . "\r\n<br />";
                     $csvoutputtop = $csvoutputtop . "\"" . $fields[$i]->name . "\",";
                     $csvoutputdata = $csvoutputdata . "\"" . $examsticked . "\",";
-                } else if ($fields[$i]->type == "dropdown") {
+                } else if (($fields[$i]->type == "dropdown") || ($fields[$i]->type == "leveldropdown")) {
 					if ((strlen($_POST["yvts_field_" . $fields[$i]->applicationid]) < 1) && ($fields[$i]->minlength >= 1)) {
 						$text = $text . stripcslashes($fields[$i]->name) . " : " . $_POST["yvts_field_" . $fields[$i]->applicationid] . "\r\n<br />";
 						$csvoutputtop = $csvoutputtop . "\"" . $fields[$i]->name . "\",";
@@ -359,6 +359,29 @@ function yvts_coursemanager_application($attributes) {
 						$output = $output . ">" . $value . "</option>\r\n";
 					}
 					$output = $output . "</select>\r\n";
+                } elseif ($fields[$i]->type == "leveldropdown") { //dropdown list
+					//dropdown values are derived from "leveldropdown" entry for this level ID.
+					//collect them
+					$valueString = yvts_level::getDropdown($course->levelid); ////FIXME explode("|",$fields[$i]->hint);
+					if (strlen($valueString) > 0) {
+					
+					$values = explode("|",$valueString);
+                    $output = $output . "<select id=\"yvts_field_" . $fields[$i]->applicationid . "\" name=\"yvts_field_" . $fields[$i]->applicationid . "\" ";
+					if ($fields[$i]->minlength > 0) { //set hint colours
+					if (strlen($_POST["yvts_field_" . $fields[$i]->applicationid . ""]) >= $fields[$i]->minlength) { $output = $output . " style=\"background-color: #d1ffd2\" "; } else { $output = $output . " style=\"background-color: pink\" "; }
+					}
+					$output = $output . " oninput=\"yvts_validate_box('yvts_field_" . $fields[$i]->applicationid . "'," . $fields[$i]->minlength . ");\">";
+					foreach ($values as $value) {
+						$output = $output . "\t<option";
+						if ((isset($_POST["yvts_field_" . $fields[$i]->applicationid . ""])) && ($_POST["yvts_field_" . $fields[$i]->applicationid . ""] == $value)) {
+							$output = $output . " selected=\"selected\" ";
+						}
+						$output = $output . ">" . $value . "</option>\r\n";
+					}
+					$output = $output . "</select>\r\n";
+					} else {
+					$output = $output . "<input type=\"hidden\" id=\"yvts_field_" . $fields[$i]->applicationid . "\" name=\"yvts_field_" . $fields[$i]->applicationid . "\" value=\"No level dropdown options are set for this level.\" />(No Selection Required)";
+					}
                 } elseif ($fields[$i]->type == "textarea") {
                     $output = $output . "<div class=\"yvts_field_textarea\">"  . stripcslashes($fields[$i]->hint) . "</div> <textarea id=\"yvts_field_" . $fields[$i]->applicationid . "\" name=\"yvts_field_" . $fields[$i]->applicationid . "\" ";
                     if ($fields[$i]->minlength > 0) { //set hint colours

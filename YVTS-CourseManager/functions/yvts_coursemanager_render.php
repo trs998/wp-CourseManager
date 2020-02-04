@@ -62,10 +62,24 @@ function yvts_coursemanager_render($attributes) {
             $currentLevel = $courses[$i]->levelname;
 			$currentCourse = $courses[$i]->coursename;
             $tableheading = $tableheading .  "<tr><th>" . $courses[$i]->coursename . " " . $courses[$i]->levelname . " <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></th><th>";
-            if ($courses[$i]->levelprice != 0) {
-                $tableheading = $tableheading .  "&pound;" . number_format($courses[$i]->levelprice,0,".",",");
+			
+			
+			$displayPrice = -1;
+			$totalPriceCourses = 0;
+			$totalPricedUpCourses = 0;
+			
+			//FIXME this doesn't work for "some" individial prices
+			for ($pricechecki = $i; (($courses[$pricechecki]->coursename == $currentCourse) && ($pricechecki < count($courses))); $pricechecki++) {
+				$totalPriceCourses++;
+				if ($courses[$pricechecki]->price > 0) {
+				$totalPricedUpCourses++;
+				}
+			}
+			if ($totalPricedUpCourses == 0) { $displayPrice = $courses[$i]->levelprice; }
+            if ($displayPrice > 0) {
+                $tableheading = $tableheading .  "&pound;" . number_format($displayPrice,0,".",",");
             } else {
-                $tableheading = $tableheading .  "P.O.A";
+				$tableheading = $tableheading .  "as priced";
             }
             $tableheading = $tableheading .  "</th></tr>";
 
@@ -77,7 +91,13 @@ function yvts_coursemanager_render($attributes) {
             $schedule = $schedule .  "<tr><td>";
             $schedule = $schedule .  $courses[$i]->note;
             if (strlen($courses[$i]->leveldesc) > 0) { $schedule = $schedule . " <span class=\"yvts_level_description\">" . $courses[$i]->leveldesc . "</span>"; }
-        
+        			if ($totalPricedUpCourses > 0) {
+					if ($courses[$i]->price > 0) {
+						$schedule = $schedule . " <span class=\"yvts_course_price\">&pound;" . number_format($courses[$i]->price,0,".",",") . "</span>";
+					} else {
+						$schedule = $schedule . " <span class=\"yvts_course_price\">&pound;" . number_format($courses[$i]->levelprice,0,".",",") . "</span>";
+					}
+			}
             if (($applicationpage != false) && ($courses[$i]->starttimeU > date("U"))) {
 					if ($courses[$i]->fullybooked) {
 						 $schedule = $schedule .  " " . $yvts_text_fullybooked . " ";
@@ -92,6 +112,13 @@ function yvts_coursemanager_render($attributes) {
 		} else {
             $schedule = $schedule .  "<tr><td colspan=\"2\">" . $courses[$i]->levelname;
             if (strlen($courses[$i]->leveldesc) > 0) { $schedule = $schedule . " <span class=\"yvts_level_description\">" . $courses[$i]->leveldesc . "</span>"; }
+			if ($totalPricedUpCourses > 0) {
+					if ($courses[$i]->price > 0) {
+						$schedule = $schedule . " <span class=\"yvts_course_price\">&pound;" . number_format($courses[$i]->price,0,".",",") . "</span>";
+					} else {
+						$schedule = $schedule . " <span class=\"yvts_course_price\">&pound;" . number_format($courses[$i]->levelprice,0,".",",") . "</span>";
+					}
+			}
             $schedule = $schedule . " are scheduled on demand ";
             if (($applicationpage != false) && (date("Y",$courses[$i]->starttimeU) >= date("Y"))) {
                 $schedule = $schedule .  " <a href=\"" . add_query_arg("yvtscourse",$courses[$i]->courseRunning_ID,$applicationpage) . "\">" . $yvts_text_unscheduled . ".</a>";
