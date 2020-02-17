@@ -61,14 +61,14 @@ function yvts_coursemanager_render($attributes) {
            // if ($currentLevel != "-") { $schedule = $schedule .  "</table>"; }
             $currentLevel = $courses[$i]->levelname;
 			$currentCourse = $courses[$i]->coursename;
-            $tableheading = $tableheading .  "<tr><th>" . $courses[$i]->coursename . " " . $courses[$i]->levelname . " <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></th><th>";
+            $tableheading = $tableheading .  "<tr><th>" . $courses[$i]->coursename . "  <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></th><th>"; // used to include " . $courses[$i]->levelname . "
 
 
 			$displayPrice = -1;
 			$totalPriceCourses = 0;
 			$totalPricedUpCourses = 0;
 
-			//FIXME this doesn't work for "some" individial prices
+			//FIXME this doesn't work for "some" individual prices
 			for ($pricechecki = $i; (($courses[$pricechecki]->coursename == $currentCourse) && ($pricechecki < count($courses))); $pricechecki++) {
 				$totalPriceCourses++;
 				if ($courses[$pricechecki]->price > 0) {
