@@ -13,7 +13,7 @@ include "functions/applications.php";
 
 function yvts_coursemanager_install () {
 
-    add_option( "yvts_coursemanager_db_version", "7" );
+    add_option( "yvts_coursemanager_db_version", "9" );
 
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
@@ -37,6 +37,7 @@ function yvts_coursemanager_install () {
         levelid mediumint(9) NOT NULL AUTO_INCREMENT,
         courseid mediumint(9) NOT NULL,
         levelprice float DEFAULT 0,
+        leveldropdown text NULL,
         description text NULL,
         name tinytext NOT NULL,
         PRIMARY KEY levelid (levelid)
@@ -52,6 +53,7 @@ function yvts_coursemanager_install () {
       `starttime` date,
       `endtime` date,
       `fullybooked` tinyint(1) DEFAULT 0,
+      `price` float DEFAULT null,
       `note` text,
         PRIMARY KEY courseRunning_ID (courseRunning_ID)
     ) $charset_collate;";
@@ -206,6 +208,48 @@ function yvts_coursemanager_upgrade_db_7_to_7_1() {
     return "7.1";
 }
 
+function yvts_coursemanager_upgrade_db_7_1_to_8() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_courseRunning"; 
+    
+    $sql = "CREATE TABLE $table_name (
+      `courseRunning_ID` mediumint(9) unsigned NOT NULL AUTO_INCREMENT,
+      `edittime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `levelid` mediumint(9) NOT NULL,
+      `starttime` date,
+      `endtime` date,
+      `fullybooked` tinyint(1) DEFAULT 0,
+      `price` float DEFAULT null,
+      `note` text,
+        PRIMARY KEY courseRunning_ID (courseRunning_ID)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "8";
+}
+
+function yvts_coursemanager_upgrade_db_8_to_9() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_levels"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        levelid mediumint(9) NOT NULL AUTO_INCREMENT,
+        courseid mediumint(9) NOT NULL,
+        levelprice float DEFAULT 0,
+        description text NULL,
+        leveldropdown text NULL,
+        name tinytext NOT NULL,
+        PRIMARY KEY levelid (levelid)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "9";
+}
+
 function yvts_coursemanager_upgrade() {
     //from old to new DB formats
     global $wpdb;
@@ -217,6 +261,8 @@ function yvts_coursemanager_upgrade() {
     if ($DBVersion == "5.1") { $DBVersion = yvts_coursemanager_upgrade_db_5_1_to_6(); }
     if ($DBVersion == "6") { $DBVersion = yvts_coursemanager_upgrade_db_6_to_7(); }
     if ($DBVersion == "7") { $DBVersion = yvts_coursemanager_upgrade_db_7_to_7_1(); }
+    if ($DBVersion == "7.1") { $DBVersion = yvts_coursemanager_upgrade_db_7_1_to_8(); }
+    if ($DBVersion == "8") { $DBVersion = yvts_coursemanager_upgrade_db_8_to_9(); }
     if ($DBVersion != get_option("yvts_coursemanager_db_version")) {
         update_option( "yvts_coursemanager_db_version", "$DBVersion" );
     }

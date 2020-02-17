@@ -41,7 +41,7 @@ class yvts_level {
         $table_name_courses = $wpdb->prefix . "yvts_courses"; 
         $table_name_levels = $wpdb->prefix . "yvts_levels"; 
         
-        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`name` as `levelname`,`$table_name_levels`.`levelprice` AS `levelprice`, `$table_name_courses`.`name` as `coursename` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` ORDER BY `$table_name_courses`.`name`, `$table_name_levels`.`name` ASC");
+        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`name` as `levelname`,`$table_name_levels`.`levelprice` AS `levelprice`,`$table_name_levels`.`leveldropdown` AS `leveldropdown`, `$table_name_courses`.`name` as `coursename` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` ORDER BY `$table_name_courses`.`name`, `$table_name_levels`.`name` ASC");
         return $result;
 
     }
@@ -55,7 +55,7 @@ class yvts_level {
         $table_name_courses = $wpdb->prefix . "yvts_courses"; 
         $table_name_levels = $wpdb->prefix . "yvts_levels"; 
         
-        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`levelname` as `levelname`, `$table_name_levels`.`levelid` AS `levelid`,`$table_name_levels`.`levelprice` AS `levelprice`, `$table_name_courses`.`name` as `coursename`, `$table_name_courses`.`description` AS `coursedesc`, `$table_name_levels`.`description` AS `leveldesc` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` WHERE `$table_name_levels`.`levelid` = $levelID");
+        $result = $wpdb->get_results( "SELECT `levelid`,`$table_name_levels`.`levelname` as `levelname`, `$table_name_levels`.`levelid` AS `levelid`,`$table_name_levels`.`levelprice` AS `levelprice`,`$table_name_levels`.`leveldropdown` AS `leveldropdown`, `$table_name_courses`.`name` as `coursename`, `$table_name_courses`.`description` AS `coursedesc`, `$table_name_levels`.`description` AS `leveldesc` FROM `$table_name_levels` LEFT JOIN `$table_name_courses` ON `$table_name_levels`.`courseid`=`$table_name_courses`.`courseid` WHERE `$table_name_levels`.`levelid` = $levelID");
         
         if (count($result) == 1) {
             return $result[0];
@@ -64,7 +64,7 @@ class yvts_level {
         }
     }
     
-    public static function createLevel($courseID, $newlevelname, $newleveldescription, $newlevelprice = 0) {
+    public static function createLevel($courseID, $newlevelname, $newleveldescription, $newlevelprice = 0, $newleveldropdown = "") {
         global $wpdb;
 
         //check does not exist
@@ -81,7 +81,7 @@ class yvts_level {
             $result = $wpdb->get_results($sql);
             if (count($result) == 0) {
                 //proceed to insert
-                $result = $wpdb->insert($table_name_levels,array("name" => $newlevelname,"description" => $newleveldescription, "courseid" => $courseID, "levelprice" => $newlevelprice),array('%s','%s','%d', '%f'));
+                $result = $wpdb->insert($table_name_levels,array("name" => $newlevelname,"description" => $newleveldescription, "courseid" => $courseID, "levelprice" => $newlevelprice, "leveldropdown" => $newleveldropdown),array('%s','%s','%d', '%f', '%s'));
                 if ($result === 1) {
                     return true;
                 } else {
@@ -95,7 +95,7 @@ class yvts_level {
         }
     }
     
-    public static function updateLevel($levelID, $newname, $newdescription, $newprice) {
+    public static function updateLevel($levelID, $newname, $newdescription, $newprice, $newleveldropdown = "") {
         global $wpdb;
         $table_name = $wpdb->prefix . "yvts_levels"; 
 
@@ -106,7 +106,7 @@ class yvts_level {
             $result = $wpdb->get_results($sql);
             if (count($result) == 0) {
                 //proceed to update
-                $result = $wpdb->update($table_name,array("name" => $newname, "description" => $newdescription, "levelprice" => $newprice),array("levelid" => $levelID),array('%s', '%s', '%d'),array('%d'));
+                $result = $wpdb->update($table_name,array("name" => $newname, "description" => $newdescription, "levelprice" => $newprice, "leveldropdown" => $newleveldropdown),array("levelid" => $levelID),array('%s', '%s', '%d', '%s'),array('%d'));
                 if ($result === 1) {
                     return true;
                 } else {
@@ -142,6 +142,18 @@ class yvts_level {
         }
 
     }
+	
+	public static function getDropdown($levelID) {
+	//FIXME return leveldropdown where levelid = levelID;
+        global $wpdb;
+        $table_name = $wpdb->prefix . "yvts_levels"; 
+
+        $sql = $wpdb->prepare( "SELECT `leveldropdown` FROM `$table_name` WHERE `levelid` = %d", $levelID );
+        $result = $wpdb->get_results($sql);
+        if (count($result) == 1) {
+            return $result[0]->leveldropdown;
+		} else { return ""; }
+	}
 
 }
 ?>

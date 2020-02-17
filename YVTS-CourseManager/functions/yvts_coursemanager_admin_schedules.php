@@ -24,7 +24,12 @@ function yvts_coursemanager_admin_schedules() {
 		$editlevel = $_POST["yvts_course_edit_level_$editingSchedule"];
 		$editscheduled = $_POST["yvts_scheduled_edit_$editingSchedule"];
 		$editnote = $_POST["yvts_edit_note_edit_$editingSchedule"];
-
+		$editprice = $_POST["yvts_edit_price_edit_$editingSchedule"];
+		if ((strlen($editprice) == 0) || (! is_numeric($editprice))) {
+		$editprice = null;
+		} else {
+		$editprice = 0+$editprice;
+		}
 		if ($editscheduled == "Yes") {
 			//add course with dates in current year
 			$editstarttime = $_POST["yvts_course_edit_starttime_edit_$editingSchedule"];
@@ -53,7 +58,7 @@ function yvts_coursemanager_admin_schedules() {
 			*/
 		}
 		if ($editError == "") {
-			$editResult = yvts_courseRunning::editCourse($editingSchedule,$editlevel, $editstarttimeU, $editendtimeU, $editnote);
+			$editResult = yvts_courseRunning::editCourse($editingSchedule,$editlevel, $editstarttimeU, $editendtimeU, $editnote, $editprice);
 		}
 	}
 
@@ -67,6 +72,12 @@ function yvts_coursemanager_admin_schedules() {
 		$newlevel = $_POST["yvts_course_new_level"];
 		$newscheduled = $_POST["yvts_scheduled"];
 		$newnote = $_POST["yvts_new_note"];
+		$newprice = $_POST["yvts_new_price"];
+		if ((strlen($newprice) == 0) || (! is_numeric($newprice))) {
+		$newprice = null;
+		} else {
+		$newprice = 0+$newprice;
+		}
 
 		if ($newscheduled == "Yes") {
 			//add course with dates in current year
@@ -96,7 +107,7 @@ function yvts_coursemanager_admin_schedules() {
 			*/
 		}
 		if ($addError == "") {
-			$addResult = yvts_courseRunning::addCourse($newlevel, $newstarttimeU, $newendtimeU, $newnote);
+			$addResult = yvts_courseRunning::addCourse($newlevel, $newstarttimeU, $newendtimeU, $newnote, $newprice);
 		}
 	}
 
@@ -193,12 +204,18 @@ function yvts_coursemanager_admin_schedules() {
 		}
 		if ($courses[$i]->levelname != $currentLevel) {
 			$currentLevel = $courses[$i]->levelname;
-			echo "<div class=\"yvts_level\">Level: " . $courses[$i]->levelname . "</div>\n";
+			echo "<div class=\"yvts_level\">Level: " . $courses[$i]->levelname . " for &pound;" . $courses[$i]->levelprice . "</div>\n";
 		}
 		if ($courses[$i]->endtimeU > 1000000) {
 			echo "" . date("d-m-Y \(l",$courses[$i]->starttimeU) . " of week " . date("W",$courses[$i]->starttimeU) . ") to "  . date("d-m-Y \(l",$courses[$i]->endtimeU) . " of week " . date("W",$courses[$i]->endtimeU) . ") running for " . round($courses[$i]->days) . " days";
 		} else {
 			echo " No Specific schedule, in " . date("Y",$courses[$i]->starttimeU);
+		}
+		
+		if ($courses[$i]->price == null) {
+			echo " price as per level, &pound" . $courses[$i]->levelprice;
+		} else {
+			echo " price overridden as, &pound" . $courses[$i]->price;
 		}
 		
 		if ($courses[$i]->fullybooked) { 
@@ -258,7 +275,10 @@ function yvts_coursemanager_admin_schedules() {
 		}
 		echo "<label for=\"yvts_new_note_edit$i\">Note:</label><input id=\"yvts_new_note_edit$i\" name=\"yvts_edit_note_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"";
 		echo $courses[$i]->note;
-		echo "\" /><br />
+		echo "\" /><br />";
+		echo "<label for=\"yvts_edit_price_edit_$i\">Price:</label><input id=\"yvts_edit_price_edit_$i\" name=\"yvts_edit_price_edit_" . $courses[$i]->courseRunning_ID . "\" value=\"";
+		echo $courses[$i]->price;
+		echo "\" /> (if left blank, Level price of &pound;" . $courses[$i]->levelprice . " will be used)<br />
 		<input type=\"submit\" name=\"course_edit\" value=\"Save Edited Course\" />
 		</form></div>";
 		//echo "</div>";
@@ -305,6 +325,9 @@ function yvts_coursemanager_admin_schedules() {
 	<label for=\"yvts_new_note\">Note:</label><input id=\"yvts_new_note\" name=\"yvts_new_note\" value=\"";
 	if ($addError != "") { echo $newnote; }
 	echo "\" /><br />
+	<label for=\"yvts_new_price\">Price:</label><input id=\"yvts_new_price\" name=\"yvts_new_price\" value=\"";
+	if ($addError != "") { echo $newprice; }
+	echo "\" /> (if blank, level price will be used)<br />
 	<input type=\"submit\" name=\"course_add\" value=\"Add Scheduled Course\" />
 	</form>
 	</div>
