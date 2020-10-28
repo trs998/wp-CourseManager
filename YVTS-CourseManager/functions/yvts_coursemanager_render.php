@@ -1,6 +1,7 @@
 <?php
 
 function yvts_coursemanager_render($attributes) {
+	global $yvts_prefix;
     //$attributes
     $targetYear = date("Y");
 
@@ -27,7 +28,12 @@ function yvts_coursemanager_render($attributes) {
     $currentCourse = "-";
 	$currentLevel = "-";
 
-     if (count($courses) > 0) {  }
+     if (count($courses) > 0) { 
+	  if (isset($yvts_prefix)) {
+		  $yvts_prefix = $yvts_prefix."a";
+	  } else {
+		$yvts_prefix = "a";
+	  }
 	for($i = 0; $i < count($courses); $i++) {
 		//if ($courses[$i]->coursename != $currentCourse) {
 		//	$currentCourse = $courses[$i]->coursename;
@@ -38,13 +44,13 @@ function yvts_coursemanager_render($attributes) {
 
             if ($i > 0) { $schedule = $schedule . "</table>"; }
             //start table
-            $schedule = $schedule . "<table class=\"yvts_courseRunning\" id=\"yvts_courseRunning-$i-short\" style=\"display:block\">";
+            $schedule = $schedule . "<table class=\"yvts_courseRunning\" id=\"yvts_courseRunning-$yvts_prefix$i-short\" style=\"display:block\">";
 
             $tableheading = "";
            // if ($currentLevel != "-") { $schedule = $schedule .  "</table>"; }
             $currentLevel = $courses[$i]->levelname;
 			$currentCourse = $courses[$i]->coursename;
-            $tableheading = $tableheading .  "<tr><th><a onclick=\"document.getElementById('yvts_courseRunning-$i').style.display='block';document.getElementById('yvts_courseRunning-$i-short').style.display='none'; return false; \" href=\"#\"> " . $courses[$i]->coursename . "  <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></a></th><th>";
+            $tableheading = $tableheading .  "<tr><th><a onclick=\"document.getElementById('yvts_courseRunning-$yvts_prefix$i').style.display='block';document.getElementById('yvts_courseRunning-$yvts_prefix$i-short').style.display='none'; return false; \" href=\"#\"> " . $courses[$i]->coursename . "  <span class=\"yvts_course_description\"> " . $courses[$i]->coursedesc . "</span></a></th><th>";
            /* if ($courses[$i]->levelprice != 0) {
                 $tableheading = $tableheading .  "&pound;" . number_format($courses[$i]->levelprice,0,".",",");
             } else {
@@ -55,7 +61,7 @@ function yvts_coursemanager_render($attributes) {
             $schedule = $schedule . $tableheading;
             $schedule = $schedule . "</table>";
 
-            $schedule = $schedule . "<table class=\"yvts_courseRunning\" id=\"yvts_courseRunning-$i\" style=\"display:none\">";
+            $schedule = $schedule . "<table class=\"yvts_courseRunning\" id=\"yvts_courseRunning-$yvts_prefix$i\" style=\"display:none\">";
 
             $tableheading = "";
            // if ($currentLevel != "-") { $schedule = $schedule .  "</table>"; }
@@ -127,8 +133,10 @@ function yvts_coursemanager_render($attributes) {
             }*/
             $schedule = $schedule .  "</td></tr>";
         }
-    }
-        if (count($courses) > 0) { $schedule = $schedule .  "</table>"; }
+	}
+	 $schedule = $schedule .  "</table>";
+	 }
+	 
 
 	return $schedule;
 
