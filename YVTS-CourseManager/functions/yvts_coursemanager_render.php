@@ -73,15 +73,38 @@ function yvts_coursemanager_render($attributes) {
 			$displayPrice = -1;
 			$totalPriceCourses = 0;
 			$totalPricedUpCourses = 0;
+			$samePriceCheck = -1;
+			$samePriceCheckall = -1;
 
-			//FIXME this doesn't work for "some" individual prices
 			for ($pricechecki = $i; (($courses[$pricechecki]->coursename == $currentCourse) && ($pricechecki < count($courses))); $pricechecki++) {
 				$totalPriceCourses++;
 				if ($courses[$pricechecki]->price > 0) {
 				$totalPricedUpCourses++;
+				if (($samePriceCheckall == -1) || ($samePriceCheckall == $courses[$pricechecki]->price)) {
+						//This price is either the first or the same as the first course. All courses.
+						$samePriceCheckall = $courses[$pricechecki]->price;
+					} else {
+						//this price is not the same
+						$samePriceCheckall = -2;
+					}
+				if ($courses[$pricechecki]->endtimeU > 1000000) { //only check prices for dated courses
+				if (($samePriceCheck == -1) || ($samePriceCheck == $courses[$pricechecki]->price)) {
+						//This price is either the first or the same as the first course. Ignore non-dated courses, they are expected to be different pricing
+						$samePriceCheck = $courses[$pricechecki]->price;
+					} else {
+						//this price is not the same
+						$samePriceCheck = -2;
+					}
+				}
 				}
 			}
-			if ($totalPricedUpCourses == 0) { $displayPrice = $courses[$i]->levelprice; }
+			if ($totalPricedUpCourses == 0) { $displayPrice = $courses[$i]->levelprice;
+			} elseif ($samePriceCheckall > 0) {
+				$displayPrice = $samePriceCheckall;
+				$samePriceCheck = $samePriceCheckall;
+			} elseif ($samePriceCheck > 0) {
+				$displayPrice = $samePriceCheck;
+			}
             if ($displayPrice > 0) {
                 $tableheading = $tableheading .  "&pound;" . number_format($displayPrice,0,".",",");
             } else {
@@ -97,7 +120,7 @@ function yvts_coursemanager_render($attributes) {
             $schedule = $schedule .  "<tr><td>";
             $schedule = $schedule .  $courses[$i]->note;
             if (strlen($courses[$i]->leveldesc) > 0) { $schedule = $schedule . " <span class=\"yvts_level_description\">" . $courses[$i]->leveldesc . "</span>"; }
-        			if ($totalPricedUpCourses > 0) {
+			if (($totalPricedUpCourses > 0) && ($samePriceCheck < 0)) { //courses have prices, but they're not all the same in this block
 					if ($courses[$i]->price > 0) {
 						$schedule = $schedule . " <span class=\"yvts_course_price\">&pound;" . number_format($courses[$i]->price,0,".",",") . "</span>";
 					} else {
@@ -118,7 +141,7 @@ function yvts_coursemanager_render($attributes) {
 		} else {
             $schedule = $schedule .  "<tr><td colspan=\"2\">" . $courses[$i]->levelname;
             if (strlen($courses[$i]->leveldesc) > 0) { $schedule = $schedule . " <span class=\"yvts_level_description\">" . $courses[$i]->leveldesc . "</span>"; }
-			if ($totalPricedUpCourses > 0) {
+			if (($totalPricedUpCourses > 0) && ($samePriceCheck < 0)) { //courses have prices, but they're not all the same in this block
 					if ($courses[$i]->price > 0) {
 						$schedule = $schedule . " <span class=\"yvts_course_price\">&pound;" . number_format($courses[$i]->price,0,".",",") . "</span>";
 					} else {
