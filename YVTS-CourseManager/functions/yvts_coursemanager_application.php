@@ -560,9 +560,13 @@ if ($submittedform == false) {
 				//$fields[$i]->minlength;
 				//$fields[$i]->hint;
 				//$fields[$i]->applicationid;
+
+				//for every type
 				$output = $output . "<div class=\"yvts_input_text";
 				if ($fields[$i]->minlength > 0) { $output = $output . " yvts_mandatory"; }
                 $output = $output . "\">";
+
+				//per type
                 if (($fields[$i]->type != "heading") && ($fields[$i]->type != "dateselector")) {
                     $output = $output . "<label for=\"yvts_field_" . $fields[$i]->applicationid . "\">" . stripcslashes($fields[$i]->name) . ":</label>";
                 }
@@ -575,6 +579,10 @@ if ($submittedform == false) {
                 if ((isset($_POST["yvts_field_" . $fields[$i]->applicationid . ""])) && (strlen($_POST["yvts_field_" . $fields[$i]->applicationid . ""]) >= $fields[$i]->minlength)) { $output = $output . " style=\"background-color: #d1ffd2\" "; } else { $output = $output . " style=\"background-color: pink\" "; }
                 }
                 $output = $output . " oninput=\"yvts_validate_box('yvts_field_" . $fields[$i]->applicationid . "'," . $fields[$i]->minlength . ");\" />";
+
+				//show hint text:
+				$output = $output . "<div class=\"yvts_field_textbox\">" . stripcslashes($fields[$i]->hint) . "</div>";
+
                 } elseif ($fields[$i]->type == "dropdown") { //dropdown list
 					//dropdown values
 					$values = explode("|",$fields[$i]->hint);

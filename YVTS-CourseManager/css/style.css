@@ -42,6 +42,7 @@ yvts_techniquecheckhint
 .yvts_techniquecheckboxbox {  clear: left; }
 .yvts_mandatory > input,textarea { display: block; }
 .yvts_field_checkbox { display: inline; }
+.yvts_field_textbox { display: inline; }
 .yvts_footer { font-size: 80%; margin-top: 100px; }
 .yvts_admin_fields { text-align: left; }
 .yvts_level_edit_form > input[type=text] { min-width: 10em; }
