@@ -6,16 +6,46 @@ function yvts_coursemanager_admin_applications() {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
 
-    $types = array("textbox","textarea","checkbox","captcha","heading","examchoice","dateselector","dropdown","leveldropdown");
+	if (isset($_GET["form"])) {
+        $displayForm = $_GET["form"];  
+        if (! is_numeric($displayForm)) {
+            unset($displayForm);
+        }
+    }
+
+    $types = array("textbox","textarea","checkbox","captcha","heading","examchoice","dateselector","dropdown","leveldropdown","techniques","techniquescheckbox","fileupload");
+
+
+    if (isset($_POST["yvts_newapplicationform"])) {
+        $yvts_newapplicationform_errors = "";
+        $yvts_newapplicationform_name = $_POST["yvts_newapplicationform_name"];
+
+        if (strlen($yvts_newapplicationform_name) < 3) { 
+            $yvts_newapplicationform_errors = $yvts_newapplicationform_errors . "Form Name must be entered<br />";
+        }
+        
+        if ($yvts_newapplicationform_errors == "") {
+            $addResult = yvts_application::createApplicationForm($yvts_newapplicationform_name);
+            if ($addResult === 1) {
+                echo "<div class=\"yvts_topmessage\">Application form added successfully.</div>";
+            } else {
+                $yvts_newapplicationform_name = "";
+            }
+        }
+    }
 
     if (isset($_POST["yvts_newapplication"])) {
         $yvts_newapplication_errors = "";
+        $yvts_newapplication_formid = $_POST["yvts_newapplication_formid"];
         $yvts_newapplication_name = $_POST["yvts_newapplication_name"];
         $yvts_newapplication_type = $_POST["yvts_newapplication_type"];
         $yvts_newapplication_position = $_POST["yvts_newapplication_position"];
         $yvts_newapplication_minlength = $_POST["yvts_newapplication_minlength"];
         $yvts_newapplication_note = $_POST["yvts_newapplication_note"];
 
+        if (!is_numeric($yvts_newapplication_formid)) { 
+            $yvts_newapplication_formid = 0;
+        }
         if (strlen($yvts_newapplication_name) < 3) { 
             $yvts_newapplication_errors = $yvts_newapplication_errors . "Field Name must be entered<br />";
         }
@@ -27,10 +57,11 @@ function yvts_coursemanager_admin_applications() {
         }
         
         if ($yvts_newapplication_errors == "") {
-            $addResult = yvts_application::createApplication($yvts_newapplication_name, $yvts_newapplication_type, $yvts_newapplication_position, $yvts_newapplication_minlength, $yvts_newapplication_note);
+            $addResult = yvts_application::createApplication($yvts_newapplication_formid,$yvts_newapplication_name, $yvts_newapplication_type, $yvts_newapplication_position, $yvts_newapplication_minlength, $yvts_newapplication_note);
             if ($addResult === 1) {
                 echo "<div class=\"yvts_topmessage\">Application form field added successfully.</div>";
             } else {
+                $yvts_newapplication_errors = $addResult;
                 $yvts_newapplication_name = "";
                 $yvts_newapplication_type = "";
                 $yvts_newapplication_position = "";
@@ -73,16 +104,69 @@ function yvts_coursemanager_admin_applications() {
         }
     }
 
-    $applications = yvts_application::getApplicationFields();
+    if (isset($displayForm)) {
+        $applicationForm = yvts_application::getApplicationForm($displayForm);
+        $applications = yvts_application::getApplicationFields($displayForm);
+    } else {
+        $applicationForm = null;
+        $applications = yvts_application::getApplicationFields();
+    }
+
+    $applicationForms = yvts_application::getApplicationForms();
 
 	echo '<div class="wrap">';
-    echo "<h2>List of form fields on the application page.</h2>";
+    echo "<div class=\"yvts_applicationforms\">";
+
+    echo "<h2>List of application forms:</h2>";
+    if (count($applicationForms) == 0) { "There are no application forms in the system<br />";  }
+    echo "<a href=\"";
+    echo menu_page_url("yvts_coursemanager_admin_applications",false);
+    echo "\">(default form)</a><br />"; 
+    for ($i = 0; $i < count($applicationForms); $i++) {
+        echo "<a href=\"";
+        echo add_query_arg(array("form" => $applicationForms[$i]->applicationformid),menu_page_url("yvts_coursemanager_admin_applications",false));
+        echo "\">" . $applicationForms[$i]->name . "</a><br />";    
+    }
+
+
+	if ((isset($yvts_newapplicationform_errors)) && ($yvts_newapplicationform_errors != "")) {
+		echo "<div style=\"color: red\">$yvts_newapplicationform_errors</div>";
+    }
+    echo "
+    <a href=\"#\" onclick=\"document.getElementById('yvts_new_applicationform').style.display='block';return false;\">New Application Form</a><br />
+    <form method=\"post\" id=\"yvts_new_applicationform\" style=\"display:none;\">
+     <div class=\"yvts_applications_new\">
+    <h3>New application form.</h3><br />
+	 <table><td>
+    <label form=\"yvts_newapplicationform_name\">New Form Name:</label>
+	 </td><td><input type=\"text\" id=\"yvts_newapplicationform_name\" name=\"yvts_newapplicationform_name\" value=\"";
+     if (isset($yvts_newapplicationform_name)) { echo $yvts_newapplicationform_name; }
+     echo "\" /></td></tr>
+
+    <tr><td colspan=\"2\"><input type=\"submit\" name=\"yvts_newapplicationform\" value=\"Save New Form\" /></td></tr>
+	 </table>
+    </form>
+    </div>";
+
+    echo "</div>"; //end forms display section
+
+    echo "<h2>List of form fields on the application page";
+    if ($applicationForm != null) {
+        echo " for form ";
+    } else {
+        echo " (default form)";
+    }
+    if (isset($displayForm)) { echo " on form " . $applicationForm->name; }
+    echo "</h2>";
     
-	if ($yvts_edited_errors != "") {
+	if ((isset($yvts_edited_errors)) && ($yvts_edited_errors != "")) {
 		echo "<div style=\"color: red\">$yvts_edited_errors</div>";
     }
 
     echo "<table class=\"yvts_admin_fields\"><tr><th>Position</th><th>Type</th><th>Name</th><th>Min Length</th><th>Note</th><th>Actions</th></tr>";
+    if (count($applications) == 0) {
+        echo "<tr><td colspan=\"6\">There are no form fields in this application form</td></tr>";
+    }
     for ($i = 0; $i < count($applications); $i++) {
        // var_dump($applications[$i]);
        echo "<form method=\"post\"><input type=\"hidden\" name=\"yvts_editfield\" value=\"" . $applications[$i]->applicationid . "\" />";
@@ -132,29 +216,55 @@ function yvts_coursemanager_admin_applications() {
 
     echo "<div class=\"yvts_applications_new\">
     <h3>New form field on the application form.</h3><br />";
-	if ($yvts_newapplication_errors != "") {
+	if ((isset($yvts_newapplication_errors)) && ($yvts_newapplication_errors != "")) {
 		echo "<div style=\"color: red\">$yvts_newapplication_errors</div>";
     }
     echo "
     <form method=\"post\">
-    <label form=\"yvts_newapplication_name\">New Form Field Name:</label> <input type=\"text\" id=\"yvts_newapplication_name\" name=\"yvts_newapplication_name\" value=\"" . $yvts_newapplication_name . "\" /><br />
-    
-    <label for=\"yvts_newapplication_type\">Form Field Type:</label> <select id=\"yvts_newapplication_type\" name=\"yvts_newapplication_type\">";
+	 <table>
+     <tr><td>
+        <label for=\"yvts_newapplication_formid\">New Form Field for Form:</label></td>";
+
+        if ($applicationForm == null) {
+            echo "<td><input type=\"hidden\" id=\"yvts_newapplication_formid\" name=\"yvts_newapplication_formid\" value=\"0\" />(default form)</td>";
+        } else {
+            echo "<td><input type=\"hidden\" id=\"yvts_newapplication_formid\" name=\"yvts_newapplication_formid\" value=\"";
+            if (isset($applicationForm->applicationformid)) { echo $applicationForm->applicationformid; }
+            echo "\" />" . $applicationForm->name . "</td>";
+        }
+
+    echo " </tr>
+
+     <tr><td>
+    <label for=\"yvts_newapplication_name\">New Form Field Name:</label>
+	 </td><td><input type=\"text\" id=\"yvts_newapplication_name\" name=\"yvts_newapplication_name\" value=\"";
+     if (isset($yvts_newapplication_name)) { echo $yvts_newapplication_name; }
+     echo "\" /></td></tr>
+    <tr><td><label for=\"yvts_newapplication_type\">Form Field Type:</label>
+	 </td><td><select id=\"yvts_newapplication_type\" name=\"yvts_newapplication_type\">";
         for ($i = 0; $i < count($types); $i++) {
             echo "<option value=\"" . $types[$i] . "\"";
-            if ($yvts_newapplication_type == $types[$i]) { echo " selected=\"selected\" "; }
+            if ((isset($yvts_newapplication_type)) && ($yvts_newapplication_type == $types[$i])) { echo " selected=\"selected\" "; }
             echo ">" . $types[$i] . "</option>";
         }
     echo "
-    </select><br />
-
-    <label form=\"yvts_newapplication_position\">New Field Position Number:</label> <input style=\"width: 10em;\" type=\"text\" id=\"yvts_newapplication_position\" name=\"yvts_newapplication_position\" value=\"" . $yvts_newapplication_position . "\" /><br />
-    <label form=\"yvts_newapplication_minlength\">Minimum Length of input:</label> <input type=\"text\" id=\"yvts_newapplication_minlength\" name=\"yvts_newapplication_minlength\" value=\"";
-    if ((!isset($yvts_newapplication_minlength)) || (!is_numeric($yvts_newapplication_minlength))) { echo "0"; } else { echo $yvts_newapplication_minlength; }
-    echo "\" /> (If this field is not mandatory, leave as 0 minimum length)<br />
-    
-    <label form=\"yvts_newapplication_note\">New Form Field Note:</label> <input style=\"width: 10em;\" type=\"text\" id=\"yvts_newapplication_note\" name=\"yvts_newapplication_note\" value=\"" . $yvts_newapplication_note . "\" /><br />
-    <input type=\"submit\" name=\"yvts_newapplication\" value=\"Save New Form Field\" />
+    </select></td></tr>
+	<tr><td>
+    <label for=\"yvts_newapplication_position\">New Field Position Number:</label>
+	 </td><td><input style=\"width: 10em;\" type=\"text\" id=\"yvts_newapplication_position\" name=\"yvts_newapplication_position\" value=\"";
+      if (isset($yvts_newapplication_position)) { echo $yvts_newapplication_position; }
+     echo "\" /></td></tr>
+    <tr><td><label form=\"yvts_newapplication_minlength\">Minimum Length of input:</label> 
+	 </td><td><input type=\"text\" id=\"yvts_newapplication_minlength\" name=\"yvts_newapplication_minlength\" value=\"";
+    if ((!isset($yvts_newapplication_minlength)) || (!is_numeric($yvts_newapplication_minlength))) { echo "0"; } elseif (isset($yvts_newapplication_minlength)) { echo $yvts_newapplication_minlength; }
+    echo "\" /> (If this field is not mandatory, leave as 0 minimum length)</td></tr>
+    <tr><td>
+    <label for=\"yvts_newapplication_note\">New Form Field Note:</label>
+	 </td><td><input style=\"width: 60em;\" type=\"text\" id=\"yvts_newapplication_note\" name=\"yvts_newapplication_note\" value=\"";
+     if (isset($yvts_newapplication_note)) { echo $yvts_newapplication_note; }
+     echo "\" /></td></tr>
+    <tr><td colspan=\"2\"><input type=\"submit\" name=\"yvts_newapplication\" value=\"Save New Form Field\" /></td></tr>
+	 </table>
     </form>
     </div>";
 

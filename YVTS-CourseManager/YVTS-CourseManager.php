@@ -1,6 +1,9 @@
 <?php
 /*
 Plugin Name: YVTS Course Manager
+Description: Lists courses, levels and scheduled runs of those courses. Allows a student to select a course run at a specific date or select days within a range, or resits, or commissioned courses, and then allows them to submit an application form for that course. Gathers appropriate data and emails it to contact email address.
+Version: 	4.0.0
+Author: 	Tristan Scott
 */
 
 defined( 'ABSPATH' ) or die( 'No Direct Access' );
@@ -250,6 +253,148 @@ function yvts_coursemanager_upgrade_db_8_to_9() {
     return "9";
 }
 
+function yvts_coursemanager_upgrade_db_9_to_10() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_courseRunning"; 
+    
+    $sql = "CREATE TABLE $table_name (
+      `courseRunning_ID` mediumint(9) unsigned NOT NULL AUTO_INCREMENT,
+      `edittime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `levelid` mediumint(9) NOT NULL,
+      `starttime` date,
+      `endtime` date,
+	  `choosedaywithin` tinyint(1) DEFAULT 0,
+      `fullybooked` tinyint(1) DEFAULT 0,
+      `price` float DEFAULT null,
+      `note` text,
+        PRIMARY KEY courseRunning_ID (courseRunning_ID)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "10";
+}
+
+function yvts_coursemanager_upgrade_db_10_to_11() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_courses"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        courseid mediumint(9) NOT NULL AUTO_INCREMENT,
+        edittime timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        name tinytext NOT NULL,
+        description text NULL,
+        longdescription text NULL DEFAULT NULL,
+        PRIMARY KEY courseid (courseid)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "11";
+}
+
+function yvts_coursemanager_upgrade_db_11_to_12() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_levels"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        levelid mediumint(9) NOT NULL AUTO_INCREMENT,
+        courseid mediumint(9) NOT NULL,
+        levelprice float DEFAULT 0,
+        description text NULL,
+        subheading text NULL,
+        leveldropdown text NULL,
+        name tinytext NOT NULL,
+        PRIMARY KEY levelid (levelid)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "12";
+}
+
+function yvts_coursemanager_upgrade_db_12_to_13() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    $table_name = $wpdb->prefix . "yvts_levels"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        levelid mediumint(9) NOT NULL AUTO_INCREMENT,
+        courseid mediumint(9) NOT NULL,
+        levelprice float DEFAULT 0,
+        description text NULL,
+        subheading text NULL,
+        leveldropdown text NULL,
+        leveltechniques text NULL,
+        name tinytext NOT NULL,
+        PRIMARY KEY levelid (levelid)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "13";
+}
+
+function yvts_coursemanager_upgrade_db_13_to_14() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    
+    $table_name = $wpdb->prefix . "yvts_application"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        `applicationid` mediumint(9) NOT NULL AUTO_INCREMENT,
+        `applicationformid` mediumint(9) NOT NULL DEFAULT 0,
+        `position` mediumint(9) NOT NULL,
+        `name` text NOT NULL,
+        `type` tinytext NOT NULL,
+        `minlength` mediumint(9) NOT NULL,
+        `hint` text NOT NULL DEFAULT '',
+        PRIMARY KEY `applicationid` (`applicationid`)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+    
+    $table_name = $wpdb->prefix . "yvts_applicationform"; 
+    
+    $sql = "CREATE TABLE $table_name (
+        `applicationformid` mediumint(9) NOT NULL AUTO_INCREMENT,
+        `name` text NOT NULL,
+        PRIMARY KEY `applicationid` (`applicationformid`)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "14";
+}
+
+function yvts_coursemanager_upgrade_db_14_to_15() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    global $wpdb;
+    
+    $table_name = $wpdb->prefix . "yvts_courseRunning"; 
+    
+    $sql = "CREATE TABLE $table_name (
+      `courseRunning_ID` mediumint(9) unsigned NOT NULL AUTO_INCREMENT,
+      `applicationformid` mediumint(9) NOT NULL DEFAULT 0,
+      `edittime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `levelid` mediumint(9) NOT NULL,
+      `starttime` date,
+      `endtime` date,
+	  `choosedaywithin` tinyint(1) DEFAULT 0,
+      `fullybooked` tinyint(1) DEFAULT 0,
+      `price` float DEFAULT null,
+      `note` text,
+        PRIMARY KEY courseRunning_ID (courseRunning_ID)
+    ) $charset_collate;";
+    
+    dbDelta( $sql );
+
+    return "15";
+}
+
 function yvts_coursemanager_upgrade() {
     //from old to new DB formats
     global $wpdb;
@@ -263,6 +408,12 @@ function yvts_coursemanager_upgrade() {
     if ($DBVersion == "7") { $DBVersion = yvts_coursemanager_upgrade_db_7_to_7_1(); }
     if ($DBVersion == "7.1") { $DBVersion = yvts_coursemanager_upgrade_db_7_1_to_8(); }
     if ($DBVersion == "8") { $DBVersion = yvts_coursemanager_upgrade_db_8_to_9(); }
+    if ($DBVersion == "9") { $DBVersion = yvts_coursemanager_upgrade_db_9_to_10(); }
+    if ($DBVersion == "10") { $DBVersion = yvts_coursemanager_upgrade_db_10_to_11(); }
+    if ($DBVersion == "11") { $DBVersion = yvts_coursemanager_upgrade_db_11_to_12(); }
+    if ($DBVersion == "12") { $DBVersion = yvts_coursemanager_upgrade_db_12_to_13(); }
+    if ($DBVersion == "13") { $DBVersion = yvts_coursemanager_upgrade_db_13_to_14(); }
+    if ($DBVersion == "14") { $DBVersion = yvts_coursemanager_upgrade_db_14_to_15(); }
     if ($DBVersion != get_option("yvts_coursemanager_db_version")) {
         update_option( "yvts_coursemanager_db_version", "$DBVersion" );
     }
@@ -274,6 +425,17 @@ function yvts_coursemanager_admin_menu() {
     add_submenu_page( 'yvts_coursemanager', 'YVTS Course Manager - Courses', 'Courses', 'manage_options', 'yvts_coursemanager_admin_courses', 'yvts_coursemanager_admin_courses' );
     add_submenu_page( 'yvts_coursemanager', 'YVTS Course Manager - Schedules', 'Schedules', 'manage_options', 'yvts_coursemanager_admin_schedules', 'yvts_coursemanager_admin_schedules' );
     add_submenu_page( 'yvts_coursemanager', 'YVTS Course Manager - Applications', 'Applications', 'manage_options', 'yvts_coursemanager_admin_applications', 'yvts_coursemanager_admin_applications' );
+}
+
+function yvts_coursemanger_admin_make_textbox($fieldname, $fielddescription, $fieldlongdescription) {
+    $box = "<tr><th scope=\"row\">" . $fielddescription . "</th><td>
+    <input name=\"" . $fieldname . "\" type=\"url\" id=\"" . $fieldname . "\" value=\"";
+    $currentValue = get_option($fieldname);
+    if ($currentValue != false) { $box = $box . $currentValue; };
+    $box = $box . "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">" . $fieldlongdescription . "</p>
+    </td></tr>";
+	return $box;
 }
 
 function yvts_coursemanager_admin() {
@@ -291,7 +453,10 @@ function yvts_coursemanager_admin() {
     if (isset($_POST["yvts_email"])) { update_option("yvts_coursemanager_email",$_POST["yvts_email"]); }
     if (isset($_POST["yvts_email_subject"])) { update_option("yvts_coursemanager_email_subject",$_POST["yvts_email_subject"]); }
     if (isset($_POST["yvts_email_from"])) { update_option("yvts_coursemanager_email_from",$_POST["yvts_email_from"]); }
+    if (isset($_POST["yvts_coursemanager_thanksmessage"])) { update_option("yvts_coursemanager_thanksmessage",$_POST["yvts_coursemanager_thanksmessage"]); }
     if (isset($_POST["yvts_suppressdescriptiononnonscheduled"])) { update_option("yvts_coursemanager_suppress_description",true); } else { update_option("yvts_coursemanager_suppress_description",false); }
+    if (isset($_POST["yvts_text_requestschedule"])) { update_option("yvts_text_requestschedule",$_POST["yvts_text_requestschedule"]); }
+    if (isset($_POST["yvts_text_scheduled_choose"])) { update_option("yvts_text_scheduled_choose",$_POST["yvts_text_scheduled_choose"]); }
     
 
     echo "<h1>Course Manager Settings</h1>";
@@ -365,6 +530,19 @@ function yvts_coursemanager_admin() {
     </p>
     </td></tr>";
     
+    $fieldname = "yvts_coursemanager_thanksmessage";
+    echo "<tr><th scope=\"row\">
+    Email Sent Message
+    </th><td>
+    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
+    $applicationpage = get_option("yvts_coursemanager_thanksmessage");
+    if ($applicationpage != false) { echo htmlspecialchars("$applicationpage"); };
+    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
+    <p class=\"description\" id=\"" . $fieldname . "-description\">
+    Thanks message that you see when you have submitted the form.
+    </p>
+    </td></tr>";
+    
     $fieldname = "yvts_captchapublic";
     echo "<tr><th scope=\"row\">
     ReCaptcha Public Key
@@ -391,7 +569,12 @@ function yvts_coursemanager_admin() {
     </p>
     </td></tr>";
     
+	
     $fieldname = "yvts_text_scheduled";
+	$fielddescription = "Text for applying to scheduled courses";
+	$fieldlongdescription = "This is the link to apply for a scheduled course. It defaults to \"Apply for this course\".";
+	echo yvts_coursemanger_admin_make_textbox($fieldname, $fielddescription, $fieldlongdescription);
+   /* $fieldname = "yvts_text_scheduled";
     echo "<tr><th scope=\"row\">
     Text for applying to scheduled courses
     </th><td>
@@ -402,7 +585,12 @@ function yvts_coursemanager_admin() {
     <p class=\"description\" id=\"" . $fieldname . "-description\">
     This is the link to apply for a scheduled course. It defaults to \"Apply for this course\".
     </p>
-    </td></tr>";
+    </td></tr>";*/
+	
+    $fieldname = "yvts_text_scheduled_choose";
+	$fielddescription = "Text for applying to scheduled resit/recert weeks";
+	$fieldlongdescription = "This is the text used for slots where students can choose days. It defaults to \"Apply for this course\" but could be for example \"Choose Days\".";
+	echo yvts_coursemanger_admin_make_textbox($fieldname, $fielddescription, $fieldlongdescription);
     
     $fieldname = "yvts_text_unscheduled";
     echo "<tr><th scope=\"row\">
@@ -418,22 +606,14 @@ function yvts_coursemanager_admin() {
     </td></tr>";
     
     $fieldname = "yvts_text_fullybooked";
-    echo "<tr><th scope=\"row\">
-    Text for applying to fully booked courses (will not be a clickable link)
-    </th><td>
-    <input name=\"$fieldname\" type=\"url\" id=\"$fieldname\" value=\"";
-    $applicationpage = get_option("yvts_text_fullybooked");
-    if ($applicationpage != false) { echo "$applicationpage"; };
-    echo "\" aria-described-by=\"" . $fieldname . "-description\" class=\"regular-text code\" />
-    <p class=\"description\" id=\"" . $fieldname . "-description\">
-    This is the text used as a replacement for the link to apply for an scheduled course. It defaults to \"Apply for this course\" which is not clickable.
-    </p>
-    </td></tr>";
+	$fielddescription = "Text for applying to fully booked courses (will not be a clickable link)";
+	$fieldlongdescription = "This is the text used as a replacement for the link to apply for an scheduled course. It defaults to \"Apply for this course\" which is not clickable.";
+	echo yvts_coursemanger_admin_make_textbox($fieldname, $fielddescription, $fieldlongdescription);
     
     $fieldname = "yvts_suppressdescriptiononnonscheduled";
-    echo "<tr><th scope=\"row\">
-    Suppress course description on unscheduled courses
-    </th><td>
+	$fielddescription = "Suppress course description on unscheduled courses";
+	
+    echo "<tr><th scope=\"row\">" . $fielddescription . "</th><td>
     <input name=\"$fieldname\" type=\"checkbox\" id=\"$fieldname\"";
     $applicationpage = get_option("yvts_coursemanager_suppress_description");
     if ($applicationpage != false) { echo " checked=\"checked\" "; };
@@ -442,6 +622,11 @@ function yvts_coursemanager_admin() {
     Suppress the display of the course description for applications for courses without scheduled dates. This could be useful if you're using it to describe details of the booking or length, which do not apply to offered versions of this course which do not have fixed lengths, such as re-sits.
     </p>
     </td></tr>";
+	
+    $fieldname = "yvts_text_requestschedule";
+	$fielddescription = "Text for describing bookable resit/recert";
+	$fieldlongdescription = "This is displayed as a description on links to book a resit/recert where no specific day is already scheduled, please use a [name] tag where you want the level name. The default is \"[name] are scheduled on demand\".";
+	echo yvts_coursemanger_admin_make_textbox($fieldname, $fielddescription, $fieldlongdescription);
     
     echo "</tbody>";
     echo "</table>";
@@ -450,7 +635,7 @@ function yvts_coursemanager_admin() {
 
     echo "</form>";
 
-    echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels, " . yvts_courseRunning::getCount() . " scheduled courses and " . yvts_exam::getCount() . " exams. There are " . yvts_application::getCount() . " form fields on the application page.</p>";
+    echo "<p>The system contains " . yvts_course::getCount() . " courses, with " . yvts_level::getCount() . " levels, " . yvts_courseRunning::getCount() . " scheduled courses and " . yvts_exam::getCount() . " exams. There are " . yvts_application::getFormCount() . " forms, and " . yvts_application::getCount() . " form fields on the application page.</p>";
     echo "<p>To display the scheduled courses, use shortcode [yvts_schedule year=\"2019\"] - if you use the shortcode with no year attribute like [yvts_schedule] the displayed schedule will use the current year.</p>";
     echo "<p>To display the application page, use shortcode [yvts_application] - you'll also need to enter the url of the page you'd added this code to below, so the schedule can link to your chosen application page.</p>";
 

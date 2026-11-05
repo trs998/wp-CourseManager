@@ -38,7 +38,7 @@ class yvts_course {
         return $result;
     }
 
-    public static function createCourse($newcoursename,$newcoursedesc) {
+    public static function createCourse($newcoursename,$newcoursedesc,$newcourselongdesc="") {
         global $wpdb;
 
         //check does not exist
@@ -51,7 +51,7 @@ class yvts_course {
         $result = $wpdb->get_results($sql);
         if (count($result) == 0) {
             //proceed to insert
-            $result = $wpdb->insert($table_name,array("name" => $newcoursename, "description" => $newcoursedesc),array('%s','%s'));
+            $result = $wpdb->insert($table_name,array("name" => $newcoursename, "description" => $newcoursedesc, "longdescription" => $newcourselongdesc),array('%s','%s','%s'));
             if ($result === 1) {
                 return true;
             } else {
@@ -62,7 +62,7 @@ class yvts_course {
         }
     }
 
-    public static function updateCourse($courseID, $newcoursename, $newcoursedesc) {
+    public static function updateCourse($courseID, $newcoursename, $newcoursedesc, $newcourselongdesc="") {
         global $wpdb;
         $table_name = $wpdb->prefix . "yvts_courses"; 
 
@@ -73,7 +73,7 @@ class yvts_course {
             $result = $wpdb->get_results($sql);
             if (count($result) == 0) {
                 //proceed to update
-                $result = $wpdb->update($table_name,array("name" => $newcoursename, "description" => $newcoursedesc),array("courseid" => $courseID),array('%s','%s'),array('%d'));
+                $result = $wpdb->update($table_name,array("name" => $newcoursename, "description" => $newcoursedesc, "longdescription" => $newcourselongdesc),array("courseid" => $courseID),array('%s','%s','%s'),array('%d'));
                 if ($result === 1) {
                     return true;
                 } else {
@@ -90,6 +90,10 @@ class yvts_course {
     //delete Course function TODO
     //check course exists
     //fetch levels
+    //fetch scheduled courses for level
+    //for each scheduled course, delete it
+    //fetch exams for level
+    //for each exam, delete it
     //for each level, delete it
     //delete course
 }
