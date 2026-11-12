@@ -2,7 +2,7 @@
 /*
 Plugin Name: YVTS Course Manager
 Description: Lists courses, levels and scheduled runs of those courses. Allows a student to select a course run at a specific date or select days within a range, or resits, or commissioned courses, and then allows them to submit an application form for that course. Gathers appropriate data and emails it to contact email address.
-Version: 	4.0.0
+Version: 	4.1.0
 Author: 	Tristan Scott
 */
 

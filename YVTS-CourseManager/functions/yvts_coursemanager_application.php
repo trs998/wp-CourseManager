@@ -41,9 +41,9 @@ function yvts_coursemanager_application($attributes) {
 
         if ($course->endtimeU > 0) {
 			if ($course->choosedaywithin > 0) {
-				$output = $output .   "<p>Course running from " . date("d M Y",$course->starttimeU) . " to " . date("d M Y",$course->endtimeU) . " - please select which day(s) you need within this range.</p>";
+				$output = $output .   "<p>" . date("d M Y",$course->starttimeU) . " to " . date("d M Y",$course->endtimeU) . " - please select which day(s) you need within this range.</p>";
 			} else {
-				$output = $output .   "<p>Course running from " . date("d M Y",$course->starttimeU) . " to " . date("d M Y",$course->endtimeU) . "</p>";
+				$output = $output .   "<p>" . date("d M Y",$course->starttimeU) . " to " . date("d M Y",$course->endtimeU) . "</p>";
 			}
         } else {
             $output = $output . "<p>Course in " . date("Y",$course->starttimeU) . " scheduled on demand.</p>";
@@ -780,9 +780,10 @@ if ($submittedform == false) {
                         $output = $output . " onchange=\"yvts_validate_file('yvts_field_" . $fields[$i]->applicationid . "'," . $fields[$i]->minlength . ");\" ";
                         $output = $output . "/>\n";
                         
-                        $output = $output . "<label class=\"yvts_filelabel\" for=\"yvts_field_" . $fields[$i]->applicationid . "\">" . stripcslashes($fields[$i]->hint) . "</label>";
 
                     $output = $output . "</div>";
+                    
+					$output = $output . "<div class=\"yvts_filelabel\" for=\"yvts_field_" . $fields[$i]->applicationid . "\">" . stripcslashes($fields[$i]->hint) . "</div>";
                 } else {
                     $output = $output . "<p>Can't handle type: " . $fields[$i]->type . "</p>\n";
                 }

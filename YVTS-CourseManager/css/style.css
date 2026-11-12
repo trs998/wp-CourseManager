@@ -24,7 +24,7 @@
 .yvts_date_chooser > label { min-width: 9em; display: inline-block; }
 .yvts_date_chooser > .yvts_tag { display: inline-block; height: 1em; width: 1em; }
 .yvts_input_text { display: block; clear: both; margin-top: 20px; }
-.yvts_input_text > label { clear: left; float: left; display: block; width: 300px; text-align: right; font-family: helvetica, sans-serif; }
+.yvts_input_text > label { clear: left; float: left; display: block; width: 300px; text-align: left; font-family: helvetica, sans-serif; }
 .yvts_exam_line > label.yvts_examlabel { display: inline; float: none; clear: none; text-align: left; }
 .yvts_input_text > .yvts_heading { clear: left; float: left; display: block; width: 600px; text-align: left; font-weight: 800; font-size: 110%; }
 .yvts_input_text > input,textarea,select { display: block; width: 300px; }
